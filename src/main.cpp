@@ -2,8 +2,39 @@
 
 #include <armadillo>
 #include <iostream>
+#include <string>
 
-int main(){
+#include "main.hpp"
+
+int main(int argc, char *argv[]){
     std::cout << "Hello world!";
+
     return 0;
+}
+
+void parse_args(int argc, char *argv[], PARAM &cPar){
+    std::string str; 
+    for (int i = 0; i < argc; ++i){
+        if (strcmp(argv[i], "--n_fold") == 0){
+            ++i;
+            str.clear();
+            str.assign(argv[i]);
+            cPar.n_fold = atoi(str.c_str());
+
+        }
+        else if (strcmp(argv[i], "--dbslmm_output") == 0){
+            ++i;
+            str.clear();
+            str.assign(argv[i]);
+            cPar.dbslmm_output = str;
+        }
+        else if (strcmp(argv[i], "--plink_file_prefix") == 0){
+            ++i;
+            str.clear();
+            str.assign(argv[i]);
+            cPar.plink_file_prefix = str;
+        }
+
+    }
+    return; 
 }
