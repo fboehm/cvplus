@@ -2,7 +2,11 @@
 
 #include <armadillo>
 #include <iostream>
-#include <string>
 
 #include "standardize.hpp"
 
+arma::vec standardize(arma::vec training, arma::vec test){
+    test -= mean(training);
+    test /= stddev(training);
+    return(test);
+}

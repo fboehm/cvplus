@@ -36,7 +36,13 @@ void parse_args(int argc, char *argv[], PARAM &cPar){
             str.assign(argv[i]);
             cPar.plink_file_prefix = str;
         }
-
+        else if (strcmp(argv[i], "--alpha") == 0){
+            ++i;
+            str.clear();
+            str.assign(argv[i]);
+            cPar.alpha = atof(str.c_str());
+        } 
     }
     return; 
 }
+
