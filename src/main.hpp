@@ -7,5 +7,6 @@ public:
     int n_fold; 
 	std::string dbslmm_output;
 	std::string plink_file_prefix;
-	float alpha;
+	double alpha;
+	 
 };

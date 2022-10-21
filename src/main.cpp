@@ -40,7 +40,7 @@ void parse_args(int argc, char *argv[], PARAM &cPar){
             ++i;
             str.clear();
             str.assign(argv[i]);
-            cPar.alpha = atof(str.c_str());
+            cPar.alpha = std::stod(str.c_str());
         } 
     }
     return; 
