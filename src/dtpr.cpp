@@ -1,4 +1,4 @@
- #include <algorithm>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <map>
@@ -24,14 +24,14 @@ using namespace arma;
 // modify from GEMMA, Xiang Zhou et al.
 //' Read genotype data from plink bed file
 //' 
-//' @param pos position in binary bed file
+//' @param pos position in bim file
 //' @param indicator_idv indicator vector of which individuals to include in analysis
 //' @param infile ifstream object for reading bim file
 //' @param geno genotype vector
 //' @return void
 //' @details indicator_idv contains one entry per subject. Each entry is either 0 or 1. Those subjects with 1 get their SNP genotype read, while those with zero don't.
 
-void IO::readSNPIm(const int pos, //??position within the bed file
+void readSNP(const int pos, //??position within the bim file??
                    const vector<int> &indicator_idv, 
                    ifstream &infile, 
                    vec &geno) {
