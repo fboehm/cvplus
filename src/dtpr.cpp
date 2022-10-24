@@ -31,7 +31,7 @@ using namespace arma;
 //' @return void
 //' @details indicator_idv contains one entry per subject. Each entry is either 0 or 1. Those subjects with 1 get their SNP genotype read, while those with zero don't.
 
-void readSNP(const int pos, //??position within the bim file??
+void readSNP(const int pos, //position within the bim file, starting at zero
                    const vector<int> &indicator_idv, 
                    ifstream &infile, 
                    vec &geno) {
