@@ -10,7 +10,13 @@ int main(int argc, char *argv[]){
 	
     PARAM cPar;
     parse_args(argc, argv, cPar);
-
+    // loop over chr 
+    for (int chr = 1; chr < 23; chr++){
+        //loop over folds
+        for (int fold = 1; fold < cPar.n_fold + 1; fold++){
+            //analyze_one_chr_fold_pair();
+        }
+    }
     return 0;
 }
 
