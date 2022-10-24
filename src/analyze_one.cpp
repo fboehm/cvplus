@@ -19,4 +19,11 @@ analyze_one(std::string DBSLMM_output_file, std::string bed_file, std::string bi
     std::vector<std::vector <std::string> > DBSLMM = read_DSBLMM_output(DBSLMM_output_file); // 3 vectors, rs_id, allele, effect
     std::vector<std::vector <std::string> > bim = read_bim_file(bim_file); // 2 vectors, rs_id and allele
     //https://stackoverflow.com/questions/49441588/c-how-to-check-if-contents-of-vector-exist-in-another-vector
+    //https://www.geeksforgeeks.org/stdfind_first_of-in-cpp/
+    //make the indicator vector for bim snps being in the DBSLMM output file
+    std::vector < bool > bim_snp_in_DBSLMM_output = std::find_first_of(DBSLMM[0].begin(), 
+                                                                        DBSLMM[0].end(), 
+                                                                        bim[0].begin(), 
+                                                                        bim[0].end()) != DBSLMM[0].end()
+    
 }
