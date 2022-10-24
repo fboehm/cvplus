@@ -7,6 +7,8 @@
 
 #include "analyze_one.hpp"
 #include "read_inputs.hpp"
+#include "dtpr.hpp"
+#include "helpers.hpp"
 
 //GOAL: analyze_one reads in a single DBSLMM output file - for a single chromosome - fold pair
 // then
@@ -24,6 +26,22 @@ analyze_one(std::string DBSLMM_output_file, std::string bed_file, std::string bi
     std::vector < bool > bim_snp_in_DBSLMM_output = std::find_first_of(DBSLMM[0].begin(), 
                                                                         DBSLMM[0].end(), 
                                                                         bim[0].begin(), 
-                                                                        bim[0].end()) != DBSLMM[0].end()
-    
+                                                                        bim[0].end()) != DBSLMM[0].end();
+    std::vector < int > bim_snp_in_DBSLMM_output_int = convert_bool_to_int(bim_snp_in_DBSLMM_output);
+    // read one SNP's genotypes for all subjects
+    // determine pos value for readSNP function
+    // we only read SNPs that are in the DBSLMM output file
+    int n_snps_in_DBSLMM_output = sum_vec(bim_snp_in_DBSLMM_output_int);
+    arma::vec geno;
+    int DBSLMM_snp = 0;
+
+    for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++){
+        //check if SNP from bim is in DBSLMM file
+        if (bim_snp_in_DBSLMM_output[k]){
+            readSNP(bim_snp, subject_indicator, , , geno);
+            DBSLMM_snp++;//advance counter for snps in DBSLMM file
+            //note that we assume that snps in DBSLMM file is a subset of snps in bim file 
+        }
+    }
+    readSNP();
 }
