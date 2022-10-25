@@ -22,3 +22,23 @@ std::vector <int> convert_bool_to_int(std::vector < bool > boolean_vector){
     return (output);
 }
 
+
+//' For every element in v2, is it in v1?
+//'
+//' @param v1 reference vector
+//' @param v2 vector to be examined
+//' @return a vector of booleans with same size as v2. 
+//' @details if ith element of v2 is in v1 then ith element of output is true
+
+std::vector <bool> is_in(const std::vector<std::string>& v1, const std::vector<std::string>& v2) {
+  std::vector <bool> output(v2.size(), false);
+  for (size_t i = 0; i < v2.size(); i++){
+      for (size_t j = 0; j < v1.size(); j++){
+          if (v2[i] == v1[j]){
+              output[i] = true;
+              break;
+          }
+      }
+  }
+  return(output); 
+}
