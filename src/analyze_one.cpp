@@ -15,16 +15,25 @@
 // reads in the bed file for the corresponding chromosome and calculates the matrix product 
 // genotypes * effects
 
-analyze_one(std::string DBSLMM_output_file, std::string bed_file, std::string bim_file){
+analyze_one_fold(std::string DBSLMM_output_file, 
+                std::string bed_file, 
+                std::string bim_file,
+                std::string training_indicator_file, 
+                std::string test_indicator_file, 
+                std::string verification_indicator_file){
+    // read indicator files
+    arma::vec training_indic = read_one_column_file(training_indicator_file, "integer");
+    arma::vec test_indic = read_one_column_file(test_indicator_file, "integer");
+    arma::vec verif_indic = read_one_column_file(verification_indicator_file, "integer");
+
+
     // subset effects vector to have only snps in both DBSLMM output file & bim file
     // we'll also use the resulting indicator vector when reading the bed file
     std::vector<std::vector <std::string> > DBSLMM = read_DSBLMM_output(DBSLMM_output_file); // 3 vectors, rs_id, allele, effect
     std::vector<std::vector <std::string> > bim = read_bim_file(bim_file); // 2 vectors, rs_id and allele
     //https://stackoverflow.com/questions/49441588/c-how-to-check-if-contents-of-vector-exist-in-another-vector
-    //https://www.geeksforgeeks.org/stdfind_first_of-in-cpp/
     //make the indicator vector for bim snps being in the DBSLMM output file
     std::vector < bool > bim_snp_in_DBSLMM_output = is_in(DBSLMM[0], bim[0]);
-    std::vector < int > bim_snp_in_DBSLMM_output_int = convert_bool_to_int(bim_snp_in_DBSLMM_output);
     // read one SNP's genotypes for all subjects
     // determine pos value for readSNP function
     // we only read SNPs that are in the DBSLMM output file
