@@ -23,14 +23,12 @@ analyze_one(std::string DBSLMM_output_file, std::string bed_file, std::string bi
     //https://stackoverflow.com/questions/49441588/c-how-to-check-if-contents-of-vector-exist-in-another-vector
     //https://www.geeksforgeeks.org/stdfind_first_of-in-cpp/
     //make the indicator vector for bim snps being in the DBSLMM output file
-    std::vector < bool > bim_snp_in_DBSLMM_output = std::find_first_of(DBSLMM[0].begin(), 
-                                                                        DBSLMM[0].end(), 
-                                                                        bim[0].begin(), 
-                                                                        bim[0].end()) != DBSLMM[0].end();
+    std::vector < bool > bim_snp_in_DBSLMM_output = is_in(DBSLMM[0], bim[0]);
     std::vector < int > bim_snp_in_DBSLMM_output_int = convert_bool_to_int(bim_snp_in_DBSLMM_output);
     // read one SNP's genotypes for all subjects
     // determine pos value for readSNP function
     // we only read SNPs that are in the DBSLMM output file
+    ifstream bed_file_stream(bed_str.c_str(), ios::binary);
     arma::vec geno;
     int DBSLMM_snp = 0;
 
