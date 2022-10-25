@@ -24,3 +24,5 @@ template<typename T, typename T2>
 std::vector<T>& operator<<(std::vector<T>& v, T2 t);
 
 std::vector<std::vector <std::string> > read_DSBLMM_output(const std::string filepath);
+
+std::vector<std::vector <std::string> > read_bim_file(const std::string filepath);

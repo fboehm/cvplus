@@ -31,17 +31,15 @@ analyze_one(std::string DBSLMM_output_file, std::string bed_file, std::string bi
     // read one SNP's genotypes for all subjects
     // determine pos value for readSNP function
     // we only read SNPs that are in the DBSLMM output file
-    int n_snps_in_DBSLMM_output = sum_vec(bim_snp_in_DBSLMM_output_int);
     arma::vec geno;
     int DBSLMM_snp = 0;
 
     for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++){
         //check if SNP from bim is in DBSLMM file
-        if (bim_snp_in_DBSLMM_output[k]){
-            readSNP(bim_snp, subject_indicator, , , geno);
+        if (bim_snp_in_DBSLMM_output[bim_snp]){
+            readSNP(bim_snp, subject_indicator, bed_file_stream, geno);
             DBSLMM_snp++;//advance counter for snps in DBSLMM file
             //note that we assume that snps in DBSLMM file is a subset of snps in bim file 
         }
     }
-    readSNP();
 }
