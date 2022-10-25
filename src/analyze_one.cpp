@@ -9,6 +9,7 @@
 #include "read_inputs.hpp"
 #include "dtpr.hpp"
 #include "helpers.hpp"
+#include "standardize.hpp"
 
 //GOAL: analyze_one reads in a single DBSLMM output file - for a single chromosome - fold pair
 // then
@@ -25,8 +26,9 @@ analyze_one_fold(std::string DBSLMM_output_file,
     arma::vec training_indic = read_one_column_file(training_indicator_file, "integer");
     arma::vec test_indic = read_one_column_file(test_indicator_file, "integer");
     arma::vec verif_indic = read_one_column_file(verification_indicator_file, "integer");
-
-
+    arma::vec training_indices = get_indices(training_indic);
+    arma::vec test_indices = get_indices(test_indic);
+    arma::vec verif_indices = get_indices(verif_indic);
     // subset effects vector to have only snps in both DBSLMM output file & bim file
     // we'll also use the resulting indicator vector when reading the bed file
     std::vector<std::vector <std::string> > DBSLMM = read_DSBLMM_output(DBSLMM_output_file); // 3 vectors, rs_id, allele, effect
@@ -45,6 +47,14 @@ analyze_one_fold(std::string DBSLMM_output_file,
         //check if SNP from bim is in DBSLMM file
         if (bim_snp_in_DBSLMM_output[bim_snp]){
             readSNP(bim_snp, subject_indicator, bed_file_stream, geno);
+            //partition geno into training, test, and verif sets
+            arma::vec training_geno = subset(geno, training_indices);
+            arma::vec verif_geno = subset(geno, verif_indices);
+            arma::vec test_geno = subset(geno, test_indices);
+            // standardize verif_geno & test_geno
+            arma::vec verif_geno_std = standardize(training_geno, verif_geno);
+            arma::vec test_geno_std = standardize(training_geno, test_geno);
+            // 
             DBSLMM_snp++;//advance counter for snps in DBSLMM file
             //note that we assume that snps in DBSLMM file is a subset of snps in bim file 
         }
