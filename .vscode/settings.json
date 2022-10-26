@@ -58,6 +58,11 @@
         "concepts": "cpp",
         "cstdarg": "cpp",
         "regex": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "strstream": "cpp",
+        "list": "cpp",
+        "iomanip": "cpp",
+        "cfenv": "cpp",
+        "set": "cpp"
     }
 }
