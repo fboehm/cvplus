@@ -16,7 +16,6 @@ int main(int argc, char *argv[]){
         for (int fold = 1; fold < cPar.n_fold + 1; fold++){
             //analyze_one_chr_fold_pair();
         }
-        
     }
     return 0;
 }
