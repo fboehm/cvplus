@@ -20,3 +20,4 @@ arma::vec subset(arma::vec vector, arma::uvec indices);
 std::vector<int> make_integer_vector(int start, int end);
 
 arma::uvec convert_string_to_indices(std::vector <std::string> in_string);
+
