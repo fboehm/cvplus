@@ -7,7 +7,6 @@
 #include <iterator>
 #include <regex>
 
-
 #include "helpers.hpp"
 
 
@@ -61,21 +60,21 @@ bool is_one(int x){
 
 //' For A a vector of 0s and 1s, find the indices for entries equal to 1
 //'
-//' @param A Armadillo vector of 1s and 0s
+//' @param A standard integer vector of 1s and 0s
 //' @reference https://stackoverflow.com/questions/25846235/finding-the-indexes-of-all-occurrences-of-an-element-in-a-vector
-//' @return Armadillo vector of positive indices where 1s are found in A
+//' @return standard vector of positive indices where 1s are found in A
 
 
-arma::vec get_indices(arma::vec A){
-    arma::vec output;
+std::vector <int> get_indices(std::vector<int> A){
+    std::vector <int> pre;
     std::vector<int>::iterator iter = A.begin();
     while ((iter = std::find_if(iter, A.end(), is_one)) != A.end())
     {
         // Do something with iter
-        output.push_back(iter);    
+        pre.push_back(*iter);    
         iter++;
     }
-    return (output);
+    return (pre);
 }
 
 
@@ -83,23 +82,23 @@ arma::vec get_indices(arma::vec A){
 //' 
 //' @param ones_positions an arma::uvec specifying the positions where the 1's go
 //' @param length the total length of the outputted vector
-//' @return an unsigned integer vector of zeros and ones
+//' @return a standard integer vector of zeros and ones
 //' @reference https://gallery.rcpp.org/articles/armadillo-subsetting/
 
-vector<int> make_ones_and_zeroes_vec(arma::uvec ones_positions, unsigned int length){
-  cout << "starting make_ones_and_zeroes_vec"<<endl;
-  cout <<"result length is: " << length << endl;
+std::vector<int> make_ones_and_zeroes_vec(arma::uvec ones_positions, unsigned int length){
+  std::cout << "starting make_ones_and_zeroes_vec"<<std::endl;
+  std::cout <<"result length is: " << length << std::endl;
   arma::vec result;
   result.zeros(length); //fill vector with all zeros
   //construct a vector for replacing zeroes with ones
   arma::vec ones_vector;
   ones_vector.ones(ones_positions.n_elem);
-  cout << "ones_vector has length: " << ones_positions.n_elem << endl;
+  std::cout << "ones_vector has length: " << ones_positions.n_elem << std::endl;
   // replace zeroes with ones
   //result.elem(ones_positions) = ones_vector;
   result.elem(ones_positions) = ones_vector;
   //convert to vector<int>
-  vector<int> out = conv_to<vector<int> >::from(result);
+  std::vector<int> out = arma::conv_to< std::vector<int> >::from(result);
   return out;
 }
 
@@ -146,12 +145,30 @@ std::vector<int> make_integer_vector(int start, int end){
 //' @return arma::uvec vector, for use as indices in subsetting armadillo matrices or vectors
 
 arma::uvec convert_string_to_indices(std::vector <std::string> in_string){
-  vector<int> vectorOfIntegers;
+  std::vector<int> vectorOfIntegers;
   castContainer(in_string, vectorOfIntegers);
-  arma::uvec result = conv_to< arma::uvec >::from(vectorOfIntegers);
+  arma::uvec result = arma::conv_to< arma::uvec >::from(vectorOfIntegers);
   return (result);
 } 
 
+//' a single string to single integer function
+//' @references https://www.py4u.net/discuss/90965
+
+template<typename C1, typename C2>
+void castContainer(const C1& source, C2& destination)
+{
+  typedef typename C1::value_type source_type;
+  typedef typename C2::value_type destination_type;
+  destination.resize(source.size());
+  std::transform(source.begin(), source.end(), destination.begin(), boost::lexical_cast<destination_type, source_type>);
+}
+
+template<typename T, typename T2>
+std::vector<T>& operator<<(std::vector<T>& v, T2 t)
+{
+  v.push_back(T(t));
+  return v;
+}
 
 
 

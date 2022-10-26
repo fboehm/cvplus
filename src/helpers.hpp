@@ -11,7 +11,7 @@ bool is_one(int x);
 
 arma::vec get_indices(arma::vec A);
 
-vector<int> make_ones_and_zeroes_vec(arma::uvec ones_positions, unsigned int length);
+std::vector<int> make_ones_and_zeroes_vec(arma::uvec ones_positions, unsigned int length);
 
 arma::mat subset(arma::mat matrix, arma::uvec indices);
 

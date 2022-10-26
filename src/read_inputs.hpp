@@ -9,11 +9,9 @@
 
 
 
-arma::vec read_one_column_file(const std::string filepath, std::string output_type);
+std::vector <std::string> read_one_column_file(const std::string filepath);
 
 std::vector<std::string> split(const std::string str, const std::string regex_str);
-
-arma::vec convert_string_to_indices(std::vector <std::string> in_string);
 
 arma::vec convert_string_to_indices(std::vector <std::string> in_string);
 

@@ -12,10 +12,9 @@
 //' Read a one-column text file into an armadillo vector
 //'
 //' @param filepath a string containing the full file path to text file with exactly one column
-//' @param output_type a length-one string vector containing the output type, either "integer" or "double"
-//' @return Armadillo vector with file contents 
+//' @return standard string vector  
 
-arma::vec read_one_column_file(const std::string filepath, std::string output_type){
+std::vector <std::string> read_one_column_file(const std::string filepath){
     std::ifstream infile;
     infile.open(filepath.c_str()); //read mode
     if(infile.fail()){ // checks to see if file opened  
@@ -29,13 +28,7 @@ arma::vec read_one_column_file(const std::string filepath, std::string output_ty
         result.push_back(l0[0]); // append only the first entry in line
     } 
     infile.close(); 
-    arma::vec out;
-    if (output_type == "integer"){
-        out = convert_string_to_indices(result);  
-    } else {
-        out = convert_string_to_doubles(result); 
-    }
-    return (out); 
+    return (result); 
 }
 
 //' Split a string vector with a regex
