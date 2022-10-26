@@ -3,6 +3,7 @@
 #include <armadillo>
 #include <iostream>
 #include <string>
+#include<algorithm>
 
 
 #include "analyze_one.hpp"
