@@ -51,6 +51,13 @@
         "memory_resource": "cpp",
         "string": "cpp",
         "optional": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "bit": "cpp",
+        "bitset": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "cstdarg": "cpp",
+        "regex": "cpp",
+        "numbers": "cpp"
     }
 }
