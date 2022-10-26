@@ -26,3 +26,5 @@
 *.app
 .Rproj.user
 .Rhistory
+research.code-workspace
+
