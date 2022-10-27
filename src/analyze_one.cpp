@@ -3,7 +3,7 @@
 #include <armadillo>
 #include <iostream>
 #include <string>
-#include<algorithm>
+#include <algorithm>
 #include <vector>
 
 
@@ -60,7 +60,7 @@ arma::vec analyze_one_fold_one_chr(std::string DBSLMM_output_file,
     // we only read SNPs that are in the DBSLMM output file
     ifstream bed_file_stream(bed_file.c_str(), ios::binary);
     arma::vec geno;
-    int DBSLMM_snp = 0;
+    int DBSLMM_snp = 0;// counter to progress through DBSLMM output file
     //make subject indicator to know which subjects to read genotypes of
     std::vector < int > subject_indicator = training_indic + test_indic;
     arma::vec product_vec;
