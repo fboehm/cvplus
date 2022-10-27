@@ -35,11 +35,20 @@ arma::vec analyze_one_fold(std::string DBSLMM_output_file,
                 std::string test_pheno_file){
 
     // read indicator files
-    std::vector <std::string> training_indic = read_one_column_file(training_indicator_file, "integer");
-    std::vector <std::string> test_indic = read_one_column_file(test_indicator_file, "integer");
-    // convert to 
-    arma::vec training_indices = get_indices(training_indic);
-    arma::vec test_indices = get_indices(test_indic);
+    std::vector <std::string> training_indic_string = read_one_column_file(training_indicator_file);
+    std::vector <std::string> test_indic_string = read_one_column_file(test_indicator_file);
+    // convert to std::vector <int>
+    std::vector<int> training_indic;
+    castContainer(training_indic_string, training_indic);
+    std::vector<int> test_indic;
+    castContainer(test_indic_string, test_indic);
+    
+
+    // get indices from indicator vectors
+    std::vector <int> training_indices = get_indices(training_indic);
+    std::vector <int> test_indices = get_indices(test_indic);
+    arma::uvec training_indices_arma = arma::conv_to< arma::uvec >::from(training_indices);
+    arma::uvec test_indices_arma = arma::conv_to< arma::uvec >::from(test_indices);
     // subset effects vector to have only snps in both DBSLMM output file & bim file
     // we'll also use the resulting indicator vector when reading the bed file
     std::vector<std::vector <std::string> > DBSLMM = read_DSBLMM_output(DBSLMM_output_file); // 3 vectors, rs_id, allele, effect
@@ -53,14 +62,14 @@ arma::vec analyze_one_fold(std::string DBSLMM_output_file,
     ifstream bed_file_stream(bed_file.c_str(), ios::binary);
     arma::vec geno;
     int DBSLMM_snp = 0;
-    arma::vec subject_indicator = training_indic + test_indic;
+    std::vector < int > subject_indicator = training_indic + test_indic;
     for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++){
         //check if SNP from bim is in DBSLMM file
         if (bim_snp_in_DBSLMM_output[bim_snp]){
             readSNP(bim_snp, subject_indicator, bed_file_stream, geno);
             //partition geno into training, test, and verif sets
-            arma::vec training_geno = subset(geno, training_indices);
-            arma::vec test_geno = subset(geno, test_indices);
+            arma::vec training_geno = subset(geno, training_indices_arma);
+            arma::vec test_geno = subset(geno, test_indices_arma);
             // standardize verif_geno & test_geno
             arma::vec test_geno_std = standardize(training_geno, test_geno);
             // multiply standardized genotypes by DBSLMM effect for that snp

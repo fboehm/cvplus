@@ -144,11 +144,10 @@ std::vector<int> make_integer_vector(int start, int end){
 //' @param string a string vector
 //' @return arma::uvec vector, for use as indices in subsetting armadillo matrices or vectors
 
-arma::uvec convert_string_to_indices(std::vector <std::string> in_string){
+std::vector <int> convert_string_to_indices(std::vector <std::string> in_string){
   std::vector<int> vectorOfIntegers;
   castContainer(in_string, vectorOfIntegers);
-  arma::uvec result = arma::conv_to< arma::uvec >::from(vectorOfIntegers);
-  return (result);
+  return (vectorOfIntegers);
 } 
 
 //' a single string to single integer function

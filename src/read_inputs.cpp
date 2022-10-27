@@ -43,17 +43,6 @@ std::vector<std::string> split(const std::string str, const std::string regex_st
   return list;
 }
 
-//' Convert std::vector <string> to indices
-//' 
-//' @param string a string vector
-//' @return arma::uvec vector, for use as indices in subsetting armadillo matrices or vectors
-
-arma::vec convert_string_to_indices(std::vector <std::string> in_string){
-  std::vector<int> vectorOfIntegers;
-  castContainer(in_string, vectorOfIntegers);
-  arma::vec result = arma::conv_to< arma::vec >::from(vectorOfIntegers);
-  return (result);
-} 
 
 //' Convert string vector to doubles armadillo vector 
 //'
@@ -70,24 +59,7 @@ arma::vec convert_string_to_doubles(std::vector <std::string> stringVector){
 }
 
 
-//' a single string to single integer function
-//' @references https://www.py4u.net/discuss/90965
 
-template<typename C1, typename C2>
-void castContainer(const C1& source, C2& destination)
-{
-  typedef typename C1::value_type source_type;
-  typedef typename C2::value_type destination_type;
-  destination.resize(source.size());
-  std::transform(source.begin(), source.end(), destination.begin(), boost::lexical_cast<destination_type, source_type>);
-}
-
-template<typename T, typename T2>
-std::vector<T>& operator<<(std::vector<T>& v, T2 t)
-{
-  v.push_back(T(t));
-  return v;
-}
 
 
 //' Read a single DBSLMM output file for a single chromosome and a single fold
