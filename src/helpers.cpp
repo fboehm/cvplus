@@ -152,7 +152,7 @@ std::vector <int> convert_string_to_indices(std::vector <std::string> in_string)
 } 
 
 //' a single string to single integer function
-//' @references https://www.py4u.net/discuss/90965
+//' @references https://www.py4u.net/discuss/90965; https://stackoverflow.com/questions/15619696/convert-vectorstring-to-vectorint-c-win32
 
 template<typename C1, typename C2>
 void castContainer(const C1& source, C2& destination)
@@ -177,4 +177,19 @@ std::vector<T> operator+(std::vector<T> lhs, const std::vector<T> & rhs)
 {
     std::transform(lhs.begin(), lhs.end(), rhs.begin(), lhs.begin(), [](const T & a, const T & b){ return a + b; });
     return lhs;
+}
+
+
+
+//' Populate only the elements of the vector specified by indices
+arma::vec populate_vec(arma::vec small_v, arma::uvec indices, arma::vec big_v){
+  int len = big_v.n_elem;
+  int small_counter = 0;
+  for (int index = 0; index < len; index++){
+    if (indices[small_counter] == index){
+      big_v(index) = small_v(small_counter);
+      small_counter++;
+    }
+  }
+  return(big_v);
 }
