@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include<algorithm>
+#include <vector>
 
 
 #include "analyze_one.hpp"
@@ -24,15 +25,13 @@
 //' @param bim_file plink bim file path
 //' @param training_indicator_file file path to a text file containing a single column of 1s and 0s to indicate training set membership for this fold
 //' @param test_indicator_file  file path to a text file containing a single column of 1s and 0s to indicate test set membership for this fold
-//' @param test_pheno_file file path to a text file containing a single column of true phenotype values for the test set for this fold
 //' @return 
 
-arma::vec analyze_one_fold(std::string DBSLMM_output_file, 
+arma::vec analyze_one_fold_one_chr(std::string DBSLMM_output_file, 
                 std::string bed_file, 
                 std::string bim_file,
                 std::string training_indicator_file, 
-                std::string test_indicator_file, 
-                std::string test_pheno_file){
+                std::string test_indicator_file){
 
     // read indicator files
     std::vector <std::string> training_indic_string = read_one_column_file(training_indicator_file);
@@ -62,7 +61,10 @@ arma::vec analyze_one_fold(std::string DBSLMM_output_file,
     ifstream bed_file_stream(bed_file.c_str(), ios::binary);
     arma::vec geno;
     int DBSLMM_snp = 0;
+    //make subject indicator to know which subjects to read genotypes of
     std::vector < int > subject_indicator = training_indic + test_indic;
+    arma::vec product_vec;
+    //https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
     for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++){
         //check if SNP from bim is in DBSLMM file
         if (bim_snp_in_DBSLMM_output[bim_snp]){
@@ -73,19 +75,13 @@ arma::vec analyze_one_fold(std::string DBSLMM_output_file,
             // standardize verif_geno & test_geno
             arma::vec test_geno_std = standardize(training_geno, test_geno);
             // multiply standardized genotypes by DBSLMM effect for that snp
-            
-
-
+            double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
+            product_vec += test_geno_std *(double) dd;            
             DBSLMM_snp++;//advance counter for snps in DBSLMM file
             //note that we assume that snps in DBSLMM file is a subset of snps in bim file 
         }
     }
-    // read in pheno values for test set for this fold
-    std::vector <std::string> test_pheno_string = read_one_column_file(test_pheno_file.c_str());
-    // convert string to numeric
-    
-
-    // Calculate residuals
-    arma::vec residuals = test_pheno - pgs;
-    return(residuals);
+    return(product_vec);
 }
+
+

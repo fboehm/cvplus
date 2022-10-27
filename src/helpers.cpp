@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
+#include <vector>
 
 #include "helpers.hpp"
 
@@ -170,5 +171,10 @@ std::vector<T>& operator<<(std::vector<T>& v, T2 t)
 }
 
 
-
-
+//' Add two std::vector <int> objects
+template <typename T>
+std::vector<T> operator+(std::vector<T> lhs, const std::vector<T> & rhs)
+{
+    std::transform(lhs.begin(), lhs.end(), rhs.begin(), lhs.begin(), [](const T & a, const T & b){ return a + b; });
+    return lhs;
+}

@@ -1,5 +1,14 @@
 #include <vector>
 #include <string>
+#include <armadillo>
+#include <math.h>       /* floor */
+#include <algorithm> /* std::sort, std::set_difference */
+#include <fstream> //std::ifstream
+#include <string>
+#include <boost/lexical_cast.hpp>
+#include <iterator>
+#include <regex>
+#include <vector>
 
 unsigned int sum_vec(std::vector<int> vv);
 
@@ -26,3 +35,8 @@ void castContainer(const C1& source, C2& destination);
 
 template<typename T, typename T2>
 std::vector<T>& operator<<(std::vector<T>& v, T2 t);
+
+
+template <typename T>
+std::vector<T> operator+(std::vector<T> lhs, const std::vector<T> & rhs);
+
