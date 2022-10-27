@@ -82,6 +82,9 @@ arma::vec analyze_one_fold(std::string DBSLMM_output_file,
     }
     // read in pheno values for test set for this fold
     std::vector <std::string> test_pheno_string = read_one_column_file(test_pheno_file.c_str());
+    // convert string to numeric
+    
+
     // Calculate residuals
     arma::vec residuals = test_pheno - pgs;
     return(residuals);
