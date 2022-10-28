@@ -1,6 +1,8 @@
 #include <armadillo>
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include <vector>
 
 arma::vec analyze_one_fold_one_chr(std::string DBSLMM_output_file, 
             std::string bed_file, 
