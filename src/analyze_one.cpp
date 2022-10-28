@@ -25,7 +25,7 @@
 //' @param bim_file plink bim file path
 //' @param training_indicator_file file path to a text file containing a single column of 1s and 0s to indicate training set membership for this fold
 //' @param test_indicator_file  file path to a text file containing a single column of 1s and 0s to indicate test set membership for this fold
-//' @return 
+//' @return armadillo vector containing pgs contribution for a single test fold and a single chromosome. Summing these contributions across chromosomes gives the pgs for each subject.
 
 arma::vec analyze_one_fold_one_chr(std::string DBSLMM_output_file, 
                 std::string bed_file, 
