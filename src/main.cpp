@@ -38,6 +38,7 @@ int main(int argc, char *argv[]){
     arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
     
     std::vector< arma::vec > pgs;
+    std::vector< arma::vec > v_pgs;
     for (int chr = 1; chr <= 22; chr++){
         // write args to analyze_one_fold_one_chr with cPar contents
         //set up bed file stream
@@ -77,6 +78,7 @@ int main(int argc, char *argv[]){
             //make subject indicator to know which subjects to read genotypes of
             std::vector < int > subject_indicator = training_indic + test_indic + verification_indic;
             arma::vec product_vec;
+            arma::vec v_product_vec; 
             //https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
             for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++){
                 //check if SNP from bim is in DBSLMM file
@@ -85,19 +87,22 @@ int main(int argc, char *argv[]){
                     //partition geno into training, test, and verif sets
                     arma::vec training_geno = subset(geno, training_indices_arma);
                     arma::vec test_geno = subset(geno, test_indices_arma);
+                    arma::vec verif_geno = subset(geno, verification_indices_arma);
                     // standardize verif_geno & test_geno
                     arma::vec test_geno_std = standardize(training_geno, test_geno);
+                    arma::vec verif_geno_std = standardize(training_geno, verif_geno);
                     // multiply standardized genotypes by DBSLMM effect for that snp
                     double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
                     // multiply the standardized test set genotypes by effect for that snp
                     product_vec += test_geno_std *(double) dd;            
+                    v_product_vec += verif_geno_std *(double) dd; 
                     DBSLMM_snp++;//advance counter for snps in DBSLMM file
                     //note that we assume that snps in DBSLMM file is a subset of snps in bim file 
                 }
             }
             //store product_vec
             pgs[fold] += product_vec;
-
+            v_pgs[fold] += v_product_vec; 
         }// end loop over folds
     } // end loop over chr
     //loop over folds
@@ -115,7 +120,41 @@ int main(int argc, char *argv[]){
     // Some entries, right now, are still datum::nan
     // we need to extract the entries that are not missing into a new vector
     // alternatively, we might remove the entries that ARE datum::nan
+    arma::vec resids2 = resids.elem(arma::find_finite(resids));
+    //resids2 then gets added to vector of fitted values
+    //// we already have the five fitted values for each verification set subject ////
+    // need to loop over verif subjects
+    // for each subject, we construct a vector with length equal to the number of "test + training" subjects
     
+    arma::vec upper( verification_indices_arma.n_elem);
+    arma::vec lower( verification_indices_arma.n_elem);
+    for (int v_subject = 0; v_subject < verification_indices_arma.n_elem; v_subject++){
+        arma::vec v_fitted(verification_indic.size()); 
+        v_fitted.fill(datum::nan);
+        for (int fold = 1; fold <= cPar.n_fold; fold++){
+            double foo_val = v_pgs[fold](v_subject);
+            arma::vec foo(test_indices_all_folds[fold].n_elem); // resids is a vector with one entry per subject in the fam file
+            foo.fill(foo_val);
+            populate_vec(foo, test_indices_all_folds[fold], v_fitted);
+        } // v_fitted now has nan's in it
+        arma::vec v_fitted2 = v_fitted.elem(arma::find_finite(v_fitted));
+        // calculate fitted + resids vector
+        arma::vec arg_plus = v_fitted2 + resids2;
+        arma::vec ap_sorted = arma::sort(arg_plus, "ascend");
+        arma::vec arg_minus = v_fitted2 - resids2;
+        arma::vec am_sorted = arma::sort(arg_minus, "ascend");
+        // determine quantile using the sorted vector
+        int p_index = ceil((1 - cPar.alpha) *(double) (v_fitted2.n_elem + 1));
+        int m_index = floor(cPar.alpha *(double) v_fitted2.n_elem + 1);
+        //since c++ indexes start with zero, we subtract 1 when from p_index and m_index to get the correct entries
+        //eg, for the fifth smallest value, we need index 4
+        upper(v_subject) = ap_sorted(p_index - 1);
+        lower(v_subject) = am_sorted(m_index - 1);
+
+    }
+    //subset true phenotype vector to verif subjects
+    
+
 
     return 0;
 }
