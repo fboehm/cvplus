@@ -170,16 +170,18 @@ std::vector<T>& operator<<(std::vector<T>& v, T2 t)
   return v;
 }
 
-
-//' Add two std::vector <int> objects
-template <typename T>
-std::vector<T> operator+(std::vector<T> lhs, const std::vector<T> & rhs)
+//' Add two std::vector objects
+/*template <typename T>
+std::vector<T>operator + (std::vector<T> lhs, const std::vector<T> & rhs)
 {
     std::transform(lhs.begin(), lhs.end(), rhs.begin(), lhs.begin(), [](const T & a, const T & b){ return a + b; });
     return lhs;
 }
-
-
+*/
+std::vector <int> add_two_integer_vectors(std::vector <int> a, std::vector <int> b){
+  std::transform(a.begin(), a.end(), b.begin(), a.begin(), std::plus<int>());
+  return(a);
+} 
 
 //' Populate only the elements of the vector big_v specified by indices adn contained in small_v
 arma::vec populate_vec(arma::vec small_v, arma::uvec indices, arma::vec big_v){
@@ -192,4 +194,12 @@ arma::vec populate_vec(arma::vec small_v, arma::uvec indices, arma::vec big_v){
     }
   }
   return(big_v);
+}
+
+std::vector <double> string_vec_to_double_vec(const std::vector <std::string> string_vec){
+  std::vector <double> out;
+  for (uint i = 0; i < string_vec.size(); i++){
+    out[i] = std::stod(string_vec[i]);
+  }
+  return out;
 }

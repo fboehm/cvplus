@@ -18,4 +18,4 @@ HPP_FILES = *.hpp
 CXXFLAG = -std=c++11 -Wall
 all: $(OUTPUTD)
 $(OUTPUTD): $(CPP_FILES) $(HPP_FILES)
-	$(CXX) $^ -o $(OUTPUTD) $(CXXFLAG) -L $(ARMALIB)
+	$(CXX) $(CPP_FILES) $(CXXFLAG) -L $(ARMALIB) -v -o $(OUTPUTD) 

@@ -6,6 +6,12 @@
 #include <vector>
 #include <algorithm>
 
+#include <math.h>       /* floor */
+#include <boost/lexical_cast.hpp>
+#include <iterator>
+#include <regex>
+
+
 #include "main.hpp"
 #include "read_inputs.hpp"
 #include "helpers.hpp"
@@ -31,8 +37,7 @@ int main(int argc, char *argv[])
     std::vector<arma::uvec> training_indices_all_folds;
     // read true phenos for subsequent use inside folds loop
     std::vector<std::string> true_pheno_string = read_one_column_file(cPar.path_to_true_pheno_files + std::string("true_pheno.txt"));
-    std::vector<double> true_pheno_double;
-    castContainer(true_pheno_double, true_pheno_string);
+    std::vector<double> true_pheno_double = string_vec_to_double_vec(true_pheno_string);
     // now convert to arma::vec
     arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
 
@@ -77,7 +82,8 @@ int main(int argc, char *argv[])
             arma::vec geno;
             int DBSLMM_snp = 0; // counter to progress through DBSLMM output file
             // make subject indicator to know which subjects to read genotypes of
-            std::vector<int> subject_indicator = training_indic + test_indic + verification_indic;
+            std::vector<int> subject_indicator_pre = add_two_integer_vectors(training_indic, test_indic);
+            std::vector<int> subject_indicator = add_two_integer_vectors(subject_indicator_pre, verification_indic);
             arma::vec product_vec;
             arma::vec v_product_vec;
             // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
@@ -166,7 +172,7 @@ int main(int argc, char *argv[])
     // subset true phenotype vector to verif subjects
     arma::vec true_pheno_subset = subset(true_pheno, verification_indices_arma);
     true_pheno_subset.save(true_pheno_outfile.c_str(), arma_ascii);
-    bool s2 = upper.save(upper_outfile.c_str(), arma_ascii);
+    upper.save(upper_outfile.c_str(), arma_ascii);
     lower.save(lower_outfile.c_str(), arma_ascii);
     return 0;
 }

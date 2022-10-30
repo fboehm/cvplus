@@ -1,4 +1,11 @@
+#include <iostream>
 #include <string>
+#include <vector>
+#include <algorithm>
+
+#include "read_inputs.hpp"
+#include "standardize.hpp"
+#include "dtpr.hpp"
 
 
 class PARAM {

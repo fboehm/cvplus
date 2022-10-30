@@ -35,7 +35,12 @@ template<typename T, typename T2>
 std::vector<T>& operator<<(std::vector<T>& v, T2 t);
 
 
-template <typename T>
+/*template <typename T>
 std::vector<T> operator+(std::vector<T> lhs, const std::vector<T> & rhs);
+*/
 
 arma::vec populate_vec(arma::vec small_v, arma::uvec indices, arma::vec big_v);
+
+std::vector <double> string_vec_to_double_vec(const std::vector <std::string> string_vec);
+
+std::vector <int> add_two_integer_vectors(std::vector <int> a, std::vector <int> b);
