@@ -181,7 +181,7 @@ std::vector<T> operator+(std::vector<T> lhs, const std::vector<T> & rhs)
 
 
 
-//' Populate only the elements of the vector specified by indices
+//' Populate only the elements of the vector big_v specified by indices adn contained in small_v
 arma::vec populate_vec(arma::vec small_v, arma::uvec indices, arma::vec big_v){
   int len = big_v.n_elem;
   int small_counter = 0;
