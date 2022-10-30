@@ -1,5 +1,4 @@
 #include <vector>
-#include <string>
 #include <armadillo>
 #include <math.h>       /* floor */
 #include <algorithm> /* std::sort, std::set_difference */
@@ -8,7 +7,6 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
-#include <vector>
 
 unsigned int sum_vec(std::vector<int> vv);
 

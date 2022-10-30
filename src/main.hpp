@@ -10,4 +10,8 @@ public:
 	double alpha;
 	std::string path_to_indicator_files;
 	std::string path_to_true_pheno_files; 
+	std::string outpath;
 };
+
+
+void parse_args(int argc, char *argv[], PARAM &cPar);

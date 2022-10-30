@@ -17,10 +17,6 @@
 std::vector <std::string> read_one_column_file(const std::string filepath){
     std::ifstream infile;
     infile.open(filepath.c_str()); //read mode
-    if(infile.fail()){ // checks to see if file opened  
-        std::cout << "error - file didn't open" << std::endl; 
-        return; // no point continuing if the file didn't open...
-    }
     std::string line;
     std::vector<std::string> result;
     while(std::getline(infile, line)){ 
@@ -66,10 +62,6 @@ arma::vec convert_string_to_doubles(std::vector <std::string> stringVector){
 std::vector<std::vector <std::string> > read_DSBLMM_output(const std::string filepath){
     std::ifstream infile;
     infile.open(filepath.c_str()); //read mode
-    if(infile.fail()){ // checks to see if file opened  
-        std::cout << "error - file didn't open" << std::endl; 
-        return; // no point continuing if the file didn't open...
-    }
     std::string line;
     std::vector<std::string> rs_id;
     std::vector<std::string> allele;
@@ -90,10 +82,6 @@ std::vector<std::vector <std::string> > read_DSBLMM_output(const std::string fil
 std::vector<std::vector <std::string> > read_bim_file(const std::string filepath){
     std::ifstream infile;
     infile.open(filepath.c_str()); //read mode
-    if(infile.fail()){ // checks to see if file opened  
-        std::cout << "error - file didn't open" << std::endl; 
-        return; // no point continuing if the file didn't open...
-    }
     std::string line;
     std::vector<std::string> rs_id;
     std::vector<std::string> allele;

@@ -1,3 +1,4 @@
+#include <vector>
 #include <armadillo>
 #include <math.h>       /* floor */
 #include <algorithm> /* std::sort, std::set_difference */
@@ -6,7 +7,6 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
-#include <vector>
 
 #include "helpers.hpp"
 
