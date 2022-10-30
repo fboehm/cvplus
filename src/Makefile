@@ -1,6 +1,4 @@
 
-
-
 OUTPUTD = cvplus
 
 # Set the path of library
