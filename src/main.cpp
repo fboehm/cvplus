@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     std::vector<arma::uvec> test_indices_all_folds; // holds 5 test index arma vectors. We need these vectors later when we assemble residuals vector for entire "training + test" set
     std::vector<arma::uvec> training_indices_all_folds;
     // read true phenos for subsequent use inside folds loop
-    std::vector<std::string> true_pheno_string = read_one_column_file(cPar.path_to_true_pheno_files + std::string("true_pheno.txt"));
+    std::vector<std::string> true_pheno_string = read_one_column_file(cPar.path_to_true_pheno_file);
     std::vector<double> true_pheno_double = string_vec_to_double_vec(true_pheno_string);
     // now convert to arma::vec
     arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
@@ -218,12 +218,12 @@ void parse_args(int argc, char *argv[], PARAM &cPar)
             str.assign(argv[i]);
             cPar.path_to_indicator_files = str;
         }
-        else if (strcmp(argv[i], "--path_to_true_pheno_files") == 0)
+        else if (strcmp(argv[i], "--path_to_true_pheno_file") == 0)
         {
             ++i;
             str.clear();
             str.assign(argv[i]);
-            cPar.path_to_true_pheno_files = str;
+            cPar.path_to_true_pheno_file = str;
         }
         else if (strcmp(argv[i], "--outpath") == 0)
         {

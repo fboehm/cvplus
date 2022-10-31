@@ -16,7 +16,7 @@ public:
 	std::string plink_file_prefix;
 	double alpha;
 	std::string path_to_indicator_files;
-	std::string path_to_true_pheno_files; 
+	std::string path_to_true_pheno_file; 
 	std::string outpath;
 };
 

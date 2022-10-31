@@ -1,0 +1,82 @@
+---
+title: "Setting up input files"
+author: "Frederick Boehm"
+date: "`r Sys.Date()`"
+output: bookdown::html_document2
+---
+
+Our goal is to prepare the directory structures and files needed for input to the C++ compiled program, cvplus.
+
+## What are the input arguments (for pheno1 in the UKB continuous data analysis)?
+
+--n_fold 5 
+
+--dbslmm_output_file_prefix ~/research/ukb-intervals/05_internal_c/pheno1/DBSLMM/summary_ukb_cross
+
+--plink_file_prefix /net/mulan/disk2/yasheng/predictionProject/plink_file/ukb/chr
+
+--alpha 0.1
+
+--path_to_indicator_files 
+
+--path_to_true_pheno_file 
+
+--outpath ~/research/ukb-intervals/05_internal_c/pheno1/cvplus_outputs/
+
+## Which inputs require new files? 
+
+The "indicator files" and the "true pheno file" are the only new files needed. We'll create them with R code from the existing index files.
+
+We already have the DBSLMM output files on the file server. Sheng previously created the plink files that are needed.
+
+### Creating the indicator files from the existing subject ID files
+
+We currently have files that record membership in the verification set and the fold-specific training and test sets. They use 
+subject IDs. Subject IDs were created by Sheng. 
+
+We need to read the pheno1 fam file to get the full list of subject IDs: /net/mulan/disk2/yasheng/predictionProject/plink_file/ukb/chr1.fam
+
+We have the verification set IDs in the file:  ~/research/ukb-intervals/03_subsample/continuous/pheno1/verif/ukb/01_idx.txt
+
+```{r}
+fam_file <- "/net/mulan/disk2/yasheng/predictionProject/plink_file/ukb/chr1.fam"
+fam <- readr::read_table(fam_file, col_names = FALSE)
+training_indicator <- list()
+for (i in 1:5){
+    training_indicator[[i]] <- !is.na(fam[[i + 5]])
+}
+```
+
+```{r}
+pheno_number <- 1
+library(magrittr)
+test_indicator <- list()
+
+
+# subjects in fam file with all NA for a given trait truly have NA for that trait
+for (i in 1:5){
+    test_ids <- fam %>%
+        dplyr::filter(!is.na(.data[[paste0("X", pheno_number * 5 + 1)]]) | 
+        !is.na(.data[[paste0("X", pheno_number * 5 + 2)]]) | 
+        !is.na(.data[[paste0("X", pheno_number * 5 + 3)]]) | 
+        !is.na(.data[[paste0("X", pheno_number * 5 + 4)]]) | 
+        !is.na(.data[[paste0("X", pheno_number * 5 + 5)]])) %>%
+        dplyr::filter(is.na(.data[[paste0("X", pheno_number * 5 + i)]])) %>%
+        dplyr::select(X1) %>%
+        unlist()
+
+
+    test_indicator[[i]] <- fam$X1 %in% test_ids
+}
+```
+
+```{r}
+# write the test & training indicator files, using as.numeric to convert to 1s and 0s.
+
+```
+
+```{r}
+# write the verification set indicator for this pheno, using the 01_idx.txt file
+
+```
+
