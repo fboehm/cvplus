@@ -13,7 +13,6 @@
 cvplus_path=/net/mulan/home/fredboe/research/cvplus/src/cvplus
 
 # cvplus command
-
 ${cvplus_path} --n_fold 5 \\
                 --dbslmm_output_file_prefix ~/research/ukb-intervals/05_internal_c/pheno1/DBSLMM/summary_ukb_cross \\
                 --plink_file_prefix /net/mulan/disk2/yasheng/predictionProject/plink_file/ukb/chr \\
