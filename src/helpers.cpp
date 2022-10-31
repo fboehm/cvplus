@@ -197,7 +197,7 @@ arma::vec populate_vec(arma::vec small_v, arma::uvec indices, arma::vec big_v){
 }
 
 std::vector <double> string_vec_to_double_vec(const std::vector <std::string> string_vec){
-  std::vector <double> out;
+  std::vector <double> out(string_vec.size());
   for (uint i = 0; i < string_vec.size(); i++){
     out[i] = std::stod(string_vec[i]);
   }
