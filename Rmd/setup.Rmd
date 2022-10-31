@@ -19,7 +19,7 @@ Our goal is to prepare the directory structures and files needed for input to th
 
 --path_to_indicator_files ~/research/ukb-intervals/03_subsample/continuous/pheno1/indicator_files/
 
---path_to_true_pheno_file 
+--path_to_true_pheno_file ~/research/ukb-intervals/03_subsample/continuous/pheno1/true_pheno.txt
 
 --outpath ~/research/ukb-intervals/05_internal_c/pheno1/cvplus_outputs/
 
