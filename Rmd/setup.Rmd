@@ -17,7 +17,7 @@ Our goal is to prepare the directory structures and files needed for input to th
 
 --alpha 0.1
 
---path_to_indicator_files 
+--path_to_indicator_files ~/research/ukb-intervals/03_subsample/continuous/pheno1/indicator_files/
 
 --path_to_true_pheno_file 
 
@@ -39,17 +39,33 @@ We need to read the pheno1 fam file to get the full list of subject IDs: /net/mu
 We have the verification set IDs in the file:  ~/research/ukb-intervals/03_subsample/continuous/pheno1/verif/ukb/01_idx.txt
 
 ```{r}
+library(magrittr)
+pheno_number <- 1
+
 fam_file <- "/net/mulan/disk2/yasheng/predictionProject/plink_file/ukb/chr1.fam"
 fam <- readr::read_table(fam_file, col_names = FALSE)
 training_indicator <- list()
 for (i in 1:5){
-    training_indicator[[i]] <- !is.na(fam[[i + 5]])
+    training_ids <- fam %>%
+                        dplyr::filter(!is.na(.data[[paste0("X", pheno_number * 5 + 1)]]) | 
+                                        !is.na(.data[[paste0("X", pheno_number * 5 + 2)]]) | 
+                                        !is.na(.data[[paste0("X", pheno_number * 5 + 3)]]) | 
+                                        !is.na(.data[[paste0("X", pheno_number * 5 + 4)]]) | 
+                                        !is.na(.data[[paste0("X", pheno_number * 5 + 5)]])) %>%
+                        dplyr::filter(is.na(.data[[paste0("X", pheno_number * 5 + 1)]]) | 
+                                        is.na(.data[[paste0("X", pheno_number * 5 + 2)]]) | 
+                                        is.na(.data[[paste0("X", pheno_number * 5 + 3)]]) | 
+                                        is.na(.data[[paste0("X", pheno_number * 5 + 4)]]) | 
+                                        is.na(.data[[paste0("X", pheno_number * 5 + 5)]])) %>%
+                        dplyr::filter(!is.na(.data[[paste0("X", pheno_number * 5 + i)]])) %>%
+                        dplyr::select(X1) %>%
+                        unlist()
+
+    training_indicator[[i]] <- fam$X1 %in% training_ids
 }
 ```
 
 ```{r}
-pheno_number <- 1
-library(magrittr)
 test_indicator <- list()
 
 
@@ -57,10 +73,10 @@ test_indicator <- list()
 for (i in 1:5){
     test_ids <- fam %>%
         dplyr::filter(!is.na(.data[[paste0("X", pheno_number * 5 + 1)]]) | 
-        !is.na(.data[[paste0("X", pheno_number * 5 + 2)]]) | 
-        !is.na(.data[[paste0("X", pheno_number * 5 + 3)]]) | 
-        !is.na(.data[[paste0("X", pheno_number * 5 + 4)]]) | 
-        !is.na(.data[[paste0("X", pheno_number * 5 + 5)]])) %>%
+                        !is.na(.data[[paste0("X", pheno_number * 5 + 2)]]) | 
+                        !is.na(.data[[paste0("X", pheno_number * 5 + 3)]]) | 
+                        !is.na(.data[[paste0("X", pheno_number * 5 + 4)]]) | 
+                        !is.na(.data[[paste0("X", pheno_number * 5 + 5)]])) %>%
         dplyr::filter(is.na(.data[[paste0("X", pheno_number * 5 + i)]])) %>%
         dplyr::select(X1) %>%
         unlist()
@@ -71,12 +87,58 @@ for (i in 1:5){
 ```
 
 ```{r}
+dirpath <- "~/research/ukb-intervals/03_subsample/continuous/pheno1/indicator_files/"
 # write the test & training indicator files, using as.numeric to convert to 1s and 0s.
-
+for (fold in 1:5){
+    readr::write_csv(x = tibble::as_tibble(as.numeric(training_indicator[[fold]])), 
+                    file = paste0(dirpath, "indicator_training_fold", 
+                                  fold, ".txt"),
+                    col_names = FALSE
+                    )
+    readr::write_csv(x = tibble::as_tibble(as.numeric(test_indicator[[fold]])), 
+                    file = paste0(dirpath, "indicator_test_fold", fold, ".txt"),
+                    col_names = FALSE
+                    )
+}
 ```
 
 ```{r}
 # write the verification set indicator for this pheno, using the 01_idx.txt file
+verif_ids <- readr::read_table("~/research/ukb-intervals/03_subsample/continuous/pheno1/verif/ukb/01_idx.txt", 
+                              col_names = FALSE)
+verif_indic <- fam$X1 %in% verif_ids$X1
+readr::write_csv(x = tibble::as_tibble(as.numeric(verif_indic)), 
+                file = paste0(dirpath, "indicator_verification.txt"), 
+                col_names = FALSE)
+```
 
+```{r}
+# checks for indicator vectors
+(as.numeric(training_indicator[[1]]) + as.numeric(test_indicator[[1]]) + as.numeric(verif_indic)) %>% max
+(as.numeric(training_indicator[[1]]) + as.numeric(test_indicator[[1]]) + as.numeric(verif_indic)) %>% min
+
+```
+
+## Make the true pheno file
+
+We lastly need to make a "true pheno file". This file will contain the true trait values for all subjects, regardless of 
+membership in "training + test", validation or verification sets.
+
+First, we'll read the fam file and select the relevant five columns. 
+Then, we'll read the verification subject IDs. With the verification 
+set IDs, we'll check to see if their trait values are included in the fam file.
+At the moment, I'm unsure of the answer to this question.
+
+```{r}
+fam %>%
+    dplyr::select(X1:X5, paste0("X", pheno_number * 5:(pheno_number * 5 + 5))) %>%
+    dplyr::mutate(truth = purrr::pmap_dbl(.l = list(X6, X7, X8, X9, X10),
+        .f = function(a, b, c, d, e){
+            x <- c(a, b, c, d, e)
+            x[!is.na(x)][1]
+        }
+    )) %>%
+    dplyr::select(truth) %>%
+    readr::write_csv(file = "~/research/ukb-intervals/03_subsample/continuous/pheno1/true_pheno.txt", col_names = FALSE)
 ```
 
