@@ -74,9 +74,9 @@ std::vector <std::string> read_bim_file(const std::string filepath){
     //std::vector<std::string> allele;
     while(std::getline(infile, line)){ 
         std::vector<std::string> l0 = split(line, "\t"); //split line with tab delimiter
-        std::cout << "l0 has length: " << l0.size() << std::endl; 
+        //std::cout << "l0 has length: " << l0.size() << std::endl; 
         rs_id.push_back(l0[1]); 
-        std::cout << "rs_id is: " << l0[1] << std::endl;
+        //std::cout << "rs_id is: " << l0[1] << std::endl;
         //allele.push_back(l0[4]);
     } 
     infile.close(); 
