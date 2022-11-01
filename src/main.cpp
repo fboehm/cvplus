@@ -68,7 +68,9 @@ int main(int argc, char *argv[])
         std::cout << "bed_file is: " << bed_file << std::endl;
         std::ifstream bed_file_stream(bed_file.c_str(), std::ios::binary);
         std::cout << "created bed_file_stream" << std::endl;
-        std::vector<std::string> bim = read_bim_file(cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim")); // 2 vectors, rs_id and allele
+        std::string bim_file_name = cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim");
+        std::cout << "bim_file is: " << bim_file_name << std::endl;
+        std::vector<std::string> bim = read_bim_file(bim_file_name); // 1 vector, rs_id
         // get indices from indicator vectors
         for (uint fold = 0; fold < cPar.n_fold; fold++)
         {

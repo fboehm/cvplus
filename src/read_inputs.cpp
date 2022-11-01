@@ -71,12 +71,12 @@ std::vector <std::string> read_bim_file(const std::string filepath){
     infile.open(filepath.c_str()); //read mode
     std::string line;
     std::vector<std::string> rs_id;
-    std::vector<std::string> allele;
+    //std::vector<std::string> allele;
     while(std::getline(infile, line)){ 
         std::vector<std::string> l0 = split(line, " "); //split line with space delimiter 
         rs_id.push_back(l0[1]); 
         std::cout << "rs_id is: " << l0[1] << std::endl;
-        allele.push_back(l0[4]);
+        //allele.push_back(l0[4]);
     } 
     infile.close(); 
     return(rs_id); 
