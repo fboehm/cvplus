@@ -63,6 +63,10 @@
         "list": "cpp",
         "iomanip": "cpp",
         "cfenv": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "cassert": "cpp",
+        "cerrno": "cpp",
+        "cfloat": "cpp",
+        "climits": "cpp"
     }
 }

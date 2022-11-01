@@ -7,6 +7,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
+#include <optional>
 
 unsigned int sum_vec(std::vector<int> vv);
 
@@ -41,6 +42,6 @@ std::vector<T> operator+(std::vector<T> lhs, const std::vector<T> & rhs);
 
 arma::vec populate_vec(arma::vec small_v, arma::uvec indices, arma::vec big_v);
 
-std::vector <double> string_vec_to_double_vec(const std::vector <std::string> string_vec);
+std::vector <std::optional < double > > string_vec_to_double_vec(const std::vector <std::string> string_vec);
 
 std::vector <int> add_two_integer_vectors(std::vector <int> a, std::vector <int> b);

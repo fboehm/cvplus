@@ -40,19 +40,6 @@ std::vector<std::string> split(const std::string str, const std::string regex_st
 }
 
 
-//' Convert string vector to doubles armadillo vector 
-//'
-//' @param stringVector a string vector where each entry is a double, quoted.
-//' @return armadillo vector of doubles
-arma::vec convert_string_to_doubles(std::vector <std::string> stringVector){
-    std::vector<double> doubleVector(stringVector.size());
-    std::transform(stringVector.begin(), stringVector.end(), doubleVector.begin(), [](const std::string& val)
-    {
-        return std::stod(val);
-    });
-    arma::vec y = arma::conv_to< arma::vec >::from(doubleVector);
-    return (y);
-}
 
 
 

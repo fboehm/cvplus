@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
     arma::uvec verification_indices_arma = arma::conv_to<arma::uvec>::from(verification_indices);
     std::cout << "Read in verification indicator file and created indices from it" << std::endl;
     // define residuals_vv to hold 5 vectors of residuals, one per fold
-    std::vector<arma::vec> residuals_vv;
-    std::vector<arma::uvec> test_indices_all_folds; // holds 5 test index arma vectors. We need these vectors later when we assemble residuals vector for entire "training + test" set
-    std::vector<arma::uvec> training_indices_all_folds;
+    std::vector<arma::vec> residuals_vv(cPar.n_fold);
+    std::vector<arma::uvec> test_indices_all_folds(cPar.n_fold); // holds 5 test index arma vectors. We need these vectors later when we assemble residuals vector for entire "training + test" set
+    std::vector<arma::uvec> training_indices_all_folds(cPar.n_fold);
     // read true phenos for subsequent use inside folds loop
     std::vector<std::string> true_pheno_string = read_one_column_file(cPar.path_to_true_pheno_file);
-    std::vector<double> true_pheno_double = string_vec_to_double_vec(true_pheno_string);
+    std::vector <std::optional < double > > true_pheno_double = string_vec_to_double_vec(true_pheno_string);
     // now convert to arma::vec
     arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
     std::cout << "finished processing true pheno" << std::endl;
