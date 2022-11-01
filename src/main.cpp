@@ -114,7 +114,6 @@ int main(int argc, char *argv[])
             // subset effects vector to have only snps in both DBSLMM output file & bim file
             // we'll also use the resulting indicator vector when reading the bed file
             std::string dbslmm_output_fn = cPar.dbslmm_output_file_prefix + std::to_string(fold + 1) + std::string("_chr") + std::to_string(chr) + std::string("_best.dbslmm.txt");
-
             std::vector<std::vector<std::string>> DBSLMM = read_DSBLMM_output(dbslmm_output_fn); // 3 vectors, rs_id, allele, effect
             std::cout << "DBSLMM has length: " << DBSLMM.size() << std::endl;
             std::cout << "DSBLMM[0] has length: " << DBSLMM[0].size() << std::endl;
@@ -129,18 +128,19 @@ int main(int argc, char *argv[])
             // determine pos value for readSNP function
             // we only read SNPs that are in the DBSLMM output file
 
-            arma::vec geno;
             int DBSLMM_snp = 0; // counter to progress through DBSLMM output file
             // make subject indicator to know which subjects to read genotypes of
             std::vector<int> subject_indicator_pre = add_two_integer_vectors(training_indic, test_indic);
             std::vector<int> subject_indicator = add_two_integer_vectors(subject_indicator_pre, verification_indic);
             // determine length of product_vec and v_product_vec
+            arma::vec geno(sum_vec(subject_indicator));
+
             arma::vec product_vec(sum_vec(test_indic));
             arma::vec v_product_vec(sum_vec(verification_indic));
             // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
             for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++)
             {
-                std::cout << "bim_snp_in_DBSLMM_output[bim_snp] has value: " << bim_snp_in_DBSLMM_output[bim_snp] << std::endl;
+                std::cout << "bim_snp has value: " << bim_snp << std::endl;
                 // check if SNP from bim is in DBSLMM file
                 if (bim_snp_in_DBSLMM_output[bim_snp])
                 {
