@@ -66,7 +66,7 @@ std::vector<std::vector <std::string> > read_DSBLMM_output(const std::string fil
 
 
 //' Read a single bim file 
-std::vector<std::vector <std::string> > read_bim_file(const std::string filepath){
+std::vector <std::string> read_bim_file(const std::string filepath){
     std::ifstream infile;
     infile.open(filepath.c_str()); //read mode
     std::string line;
@@ -75,10 +75,10 @@ std::vector<std::vector <std::string> > read_bim_file(const std::string filepath
     while(std::getline(infile, line)){ 
         std::vector<std::string> l0 = split(line, " "); //split line with space delimiter 
         rs_id.push_back(l0[1]); 
+        std::cout << "rs_id is: " << l0[1] << std::endl;
         allele.push_back(l0[4]);
     } 
     infile.close(); 
-    std::vector<std::vector <std::string> > out = {rs_id, allele};
-    return(out); 
+    return(rs_id); 
 }
 

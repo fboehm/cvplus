@@ -65,8 +65,10 @@ int main(int argc, char *argv[])
         // write args to analyze_one_fold_one_chr with cPar contents
         // set up bed file stream
         std::string bed_file = cPar.plink_file_prefix + std::to_string(chr) + std::string(".bed");
+        std::cout << "bed_file is: " << bed_file << std::endl;
         std::ifstream bed_file_stream(bed_file.c_str(), std::ios::binary);
-        std::vector<std::vector<std::string>> bim = read_bim_file(cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim")); // 2 vectors, rs_id and allele
+        std::cout << "created bed_file_stream" << std::endl;
+        std::vector<std::string> bim = read_bim_file(cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim")); // 2 vectors, rs_id and allele
         // get indices from indicator vectors
         for (uint fold = 0; fold < cPar.n_fold; fold++)
         {
@@ -105,7 +107,7 @@ int main(int argc, char *argv[])
             std::vector<std::vector<std::string>> DBSLMM = read_DSBLMM_output(cPar.dbslmm_output_file_prefix + std::to_string(fold) + std::string("_chr") + std::to_string(chr) + std::string("_best.dbslmm.txt")); // 3 vectors, rs_id, allele, effect
             // https://stackoverflow.com/questions/49441588/c-how-to-check-if-contents-of-vector-exist-in-another-vector
             // make the indicator vector for bim snps being in the DBSLMM output file
-            std::vector<bool> bim_snp_in_DBSLMM_output = is_in(DBSLMM[0], bim[0]);
+            std::vector<bool> bim_snp_in_DBSLMM_output = is_in(DBSLMM[0], bim);
             // read one SNP's genotypes for all subjects
             // determine pos value for readSNP function
             // we only read SNPs that are in the DBSLMM output file
