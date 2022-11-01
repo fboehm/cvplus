@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
         std::ifstream bed_file_stream(bed_file.c_str(), std::ios::binary);
         std::vector<std::vector<std::string>> bim = read_bim_file(cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim")); // 2 vectors, rs_id and allele
         // get indices from indicator vectors
-        for (int 0; fold < cPar.n_fold; fold++)
+        for (uint fold = 0; fold < cPar.n_fold; fold++)
         {
             //use fold + 1, since naming of my folds starts with 1, rather than zero
             std::cout << "starting fold " << fold + 1 << " for chr " << chr << std::endl;
@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
             // adjusted test_indices_all_folds object
             std::vector <int> short_test_indic;
             for (uint subject = 0; subject < test_indic.size(); subject++){
-                if (true_pheno_missingness_indicator[i] == 0){
-                    short_test_indic.push_back(test_indic[subject])
+                if (true_pheno_missingness_indicator[subject] == 0){
+                    short_test_indic.push_back(test_indic[subject]);
                 }
             }
             std::vector <int> short_test_indices = get_indices(short_test_indic);
