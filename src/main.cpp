@@ -37,9 +37,21 @@ int main(int argc, char *argv[])
     std::vector<arma::vec> residuals_vv(cPar.n_fold);
     std::vector<arma::uvec> test_indices_all_folds(cPar.n_fold); // holds 5 test index arma vectors. We need these vectors later when we assemble residuals vector for entire "training + test" set
     std::vector<arma::uvec> training_indices_all_folds(cPar.n_fold);
+    std::vector<arma::uvec> short_test_indices_all_folds(cPar.n_fold);
     // read true phenos for subsequent use inside folds loop
     std::vector<std::string> true_pheno_string = read_one_column_file(cPar.path_to_true_pheno_file);
-    std::vector <std::optional < double > > true_pheno_double = string_vec_to_double_vec(true_pheno_string);
+    //make a vector to indicate missing pheno values, ie "NA", from true_pheno_string
+    std::vector <double> true_pheno_double;
+    std::vector <int> true_pheno_missingness_indicator;
+    for (uint i = 0; i < true_pheno_string.size(); i++){
+        if (true_pheno_string[i] != "NA"){
+            true_pheno_double.push_back(std::stod(true_pheno_string[i]));
+            true_pheno_missingness_indicator.push_back(0);
+        } else {
+            true_pheno_missingness_indicator.push_back(1);
+        }
+    }
+    //make true_pheno_double as a std::vector <double> without missing values
     // now convert to arma::vec
     arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
     std::cout << "finished processing true pheno" << std::endl;
@@ -56,11 +68,12 @@ int main(int argc, char *argv[])
         std::ifstream bed_file_stream(bed_file.c_str(), std::ios::binary);
         std::vector<std::vector<std::string>> bim = read_bim_file(cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim")); // 2 vectors, rs_id and allele
         // get indices from indicator vectors
-        for (int fold = 1; fold <= cPar.n_fold; fold++)
+        for (int 0; fold < cPar.n_fold; fold++)
         {
-            std::cout << "starting fold " << fold << " for chr " << chr << std::endl;
-            std::string training_indicator_file = cPar.path_to_indicator_files + std::string("indicator_training_fold") + std::to_string(fold) + std::string(".txt");
-            std::string test_indicator_file = cPar.path_to_indicator_files + std::string("indicator_test_fold") + std::to_string(fold) + std::string(".txt");
+            //use fold + 1, since naming of my folds starts with 1, rather than zero
+            std::cout << "starting fold " << fold + 1 << " for chr " << chr << std::endl;
+            std::string training_indicator_file = cPar.path_to_indicator_files + std::string("indicator_training_fold") + std::to_string(fold + 1) + std::string(".txt");
+            std::string test_indicator_file = cPar.path_to_indicator_files + std::string("indicator_test_fold") + std::to_string(fold + 1) + std::string(".txt");
             std::vector<std::string> training_indic_string = read_one_column_file(training_indicator_file);
             std::vector<std::string> test_indic_string = read_one_column_file(test_indicator_file);
             // convert to std::vector <int>
@@ -74,7 +87,19 @@ int main(int argc, char *argv[])
             arma::uvec test_indices_arma = arma::conv_to<arma::uvec>::from(test_indices);
             test_indices_all_folds[fold] = test_indices_arma;
             training_indices_all_folds[fold] = training_indices_arma;
-
+            //due to the way I now define true_pheno, in terms of two 
+            // vectors - one with (nonmissing) values and the second with 
+            // indicator of missingness - I need to make 
+            // adjusted test_indices_all_folds object
+            std::vector <int> short_test_indic;
+            for (uint subject = 0; subject < test_indic.size(); subject++){
+                if (true_pheno_missingness_indicator[i] == 0){
+                    short_test_indic.push_back(test_indic[subject])
+                }
+            }
+            std::vector <int> short_test_indices = get_indices(short_test_indic);
+            arma::uvec short_test_indices_arma = arma::conv_to<arma::uvec>::from(short_test_indices);
+            short_test_indices_all_folds[fold] = short_test_indices_arma;
             // subset effects vector to have only snps in both DBSLMM output file & bim file
             // we'll also use the resulting indicator vector when reading the bed file
             std::vector<std::vector<std::string>> DBSLMM = read_DSBLMM_output(cPar.dbslmm_output_file_prefix + std::to_string(fold) + std::string("_chr") + std::to_string(chr) + std::string("_best.dbslmm.txt")); // 3 vectors, rs_id, allele, effect
@@ -121,15 +146,15 @@ int main(int argc, char *argv[])
         } // end loop over folds
     }     // end loop over chr
     // loop over folds
-    for (int fold = 1; fold <= cPar.n_fold; fold++)
-    {
-        residuals_vv[fold] = abs(true_pheno.elem(test_indices_all_folds[fold]) - pgs[fold]);
+    for (int fold = 0; fold < cPar.n_fold; fold++){
+//fix this after my redefinition of true_pheno!
+        residuals_vv[fold] = abs(true_pheno.elem(short_test_indices_all_folds[fold]) - pgs[fold]);
     }
     // assemble residuals_vv into a single arma::vec for all "training + test" subjects
     // initialize resids vector with NaN values
     arma::vec resids(verification_indic.size()); // resids is a vector with one entry per subject in the fam file
     resids.fill(datum::nan);
-    for (int fold = 1; fold <= cPar.n_fold; fold++)
+    for (int fold = 0; fold < cPar.n_fold; fold++)
     {
         populate_vec(residuals_vv[fold], test_indices_all_folds[fold], resids);
     }
@@ -149,7 +174,7 @@ int main(int argc, char *argv[])
     {
         arma::vec v_fitted(verification_indic.size());
         v_fitted.fill(datum::nan);
-        for (int fold = 1; fold <= cPar.n_fold; fold++)
+        for (int fold = 0; fold < cPar.n_fold; fold++)
         {
             double foo_val = v_pgs[fold](v_subject);
             arma::vec foo(test_indices_all_folds[fold].n_elem); // resids is a vector with one entry per subject in the fam file

@@ -7,7 +7,6 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
-#include <optional>
 
 #include "helpers.hpp"
 
@@ -195,16 +194,4 @@ arma::vec populate_vec(arma::vec small_v, arma::uvec indices, arma::vec big_v){
     }
   }
   return(big_v);
-}
-
-std::vector <std::optional < double > > string_vec_to_double_vec(const std::vector <std::string> string_vec){
-  std::vector <std::optional < double> > out(string_vec.size());
-  for (uint i = 0; i < string_vec.size(); i++){
-    if (string_vec[i] == "NA"){
-      out[i] = std::nullopt;
-    } else {
-      out[i] = std::stod(string_vec[i]);
-    }
-  }
-  return out;
 }
