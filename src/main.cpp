@@ -57,8 +57,8 @@ int main(int argc, char *argv[])
     std::cout << "finished processing true pheno" << std::endl;
     std::cout << "true_pheno has length " << true_pheno.n_elem << std::endl;
 
-    std::vector<arma::vec> pgs;
-    std::vector<arma::vec> v_pgs;
+    std::vector<arma::vec> pgs(cPar.n_fold);
+    std::vector<arma::vec> v_pgs(cPar.n_fold);
     for (int chr = 1; chr <= 22; chr++)
     {
         std::cout << "Starting chr " << chr << std::endl;
@@ -134,8 +134,9 @@ int main(int argc, char *argv[])
             // make subject indicator to know which subjects to read genotypes of
             std::vector<int> subject_indicator_pre = add_two_integer_vectors(training_indic, test_indic);
             std::vector<int> subject_indicator = add_two_integer_vectors(subject_indicator_pre, verification_indic);
-            arma::vec product_vec;
-            arma::vec v_product_vec;
+            // determine length of product_vec and v_product_vec
+            arma::vec product_vec(sum_vec(test_indic));
+            arma::vec v_product_vec(sum_vec(verification_indic));
             // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
             for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++)
             {
