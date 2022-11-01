@@ -54,7 +54,7 @@ std::vector<std::vector <std::string> > read_DSBLMM_output(const std::string fil
     std::vector<std::string> allele;
     std::vector<std::string> effect;
     while(std::getline(infile, line)){ 
-        std::vector<std::string> l0 = split(line, " "); //split line with space delimiter 
+        std::vector<std::string> l0 = split(line, " "); //split line with tab delimiter 
         rs_id.push_back(l0[0]); // append the first entry in line
         allele.push_back(l0[1]);
         effect.push_back(l0[3]);// use fourth column as effect
