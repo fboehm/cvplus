@@ -132,9 +132,8 @@ int main(int argc, char *argv[])
             // make subject indicator to know which subjects to read genotypes of
             std::vector<int> subject_indicator_pre = add_two_integer_vectors(training_indic, test_indic);
             std::vector<int> subject_indicator = add_two_integer_vectors(subject_indicator_pre, verification_indic);
-            std::cout << "Length of subject_indicator: " << subject_indicator.size() << std::endl;
             // determine length of product_vec and v_product_vec
-            arma::vec geno;
+            arma::vec geno = arma::zeros<vec>(sum_vec(subject_indicator));
             arma::vec product_vec(sum_vec(test_indic));
             arma::vec v_product_vec(sum_vec(verification_indic));
             // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
@@ -145,7 +144,6 @@ int main(int argc, char *argv[])
                 if (bim_snp_in_DBSLMM_output[bim_snp])
                 {
                     readSNP(bim_snp, subject_indicator, bed_file_stream, geno);
-                    std::cout << "geno has length: " << geno.n_elem << std::endl;
                     // partition geno into training, test, and verif sets
                     arma::vec training_geno = subset(geno, training_indices_arma);
                     arma::vec test_geno = subset(geno, test_indices_arma);
@@ -156,6 +154,7 @@ int main(int argc, char *argv[])
                     // multiply standardized genotypes by DBSLMM effect for that snp
                     double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
                     // multiply the standardized test set genotypes by effect for that snp
+                    std::cout << "dd has value: " << dd << std::endl;
                     product_vec += test_geno_std * (double)dd;
                     v_product_vec += verif_geno_std * (double)dd;
                     DBSLMM_snp++; // advance counter for snps in DBSLMM file

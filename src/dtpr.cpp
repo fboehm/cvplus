@@ -34,7 +34,10 @@ using namespace arma;
 void readSNP(const int pos, //position within the bim file, starting at zero
                    const vector<int> &indicator_idv, 
                    ifstream &infile, 
-                   vec &geno) {
+                   vec &geno){
+				   //,
+				   //double &maf
+				   //) {
 
 	// debug_msg("entered");
 	size_t ni_total = indicator_idv.size(), n_bit;// set ni_total to length of indicator_idv 
@@ -99,6 +102,15 @@ void readSNP(const int pos, //position within the bim file, starting at zero
 			c_idv++;
 		}
 	}
+		// max imputation
+	// int imp_val = distance(freq, max_element(freq, freq + 3));
+	// mean imputation
+	geno_mean /= (double)(c_idv - geno_miss.size());
+	for (size_t i = 0; i < geno_miss.size(); ++i) 
+		geno(geno_miss[i]) = geno_mean;
+	double af = 0.5 * sum(geno) / geno.n_elem; 
+	//maf = min(af, 1.0 - af);
+
 	return ;
 }
 
