@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --partition=mulan,main
-#SBATCH --time=04:00:00
+#SBATCH --time=24:00:00
 #SBATCH --job-name=cvpluscpp
 #SBATCH --mem-per-cpu=16G
 #SBATCH --output=/net/mulan/home/fredboe/research/ukb-intervals/cluster_outputs/cvpluscpp.out
