@@ -29,7 +29,7 @@ using namespace arma;
 //' @param infile ifstream object for reading bim file
 //' @param geno genotype vector
 //' @return void
-//' @details indicator_idv contains one entry per subject. Each entry is either 0 or 1. Those subjects with 1 get their SNP genotype read, while those with zero don't.
+//' @details indicator_idv contains one entry per subject in the plink files. Each entry is either 0 or 1. Those subjects with 1 get their SNP genotype read, while those with zero don't.
 
 void readSNP(const int pos, //position within the bim file, starting at zero
                    const vector<int> &indicator_idv, 

@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
             pgs[fold] += product_vec;
             v_pgs[fold] += v_product_vec;
         } // end loop over folds
+        bed_file_stream.close();
     }     // end loop over chr
     // loop over folds
     for (int fold = 0; fold < cPar.n_fold; fold++){
