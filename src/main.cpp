@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
             arma::uvec test_indices_arma = arma::conv_to<arma::uvec>::from(test_indices);
             test_indices_all_folds[fold] = test_indices_arma;
             training_indices_all_folds[fold] = training_indices_arma;
+            
             //due to the way I now define true_pheno, in terms of two 
             // vectors - one with (nonmissing) values and the second with 
             // indicator of missingness - I need to make 
@@ -136,6 +137,11 @@ int main(int argc, char *argv[])
             arma::vec geno = arma::zeros<vec>(sum_vec(subject_indicator));
             arma::vec product_vec(sum_vec(test_indic));
             arma::vec v_product_vec(sum_vec(verification_indic));
+            if (chr == 1){
+                pgs[fold].zeros(product_vec.n_elem);
+                v_pgs[fold].zeros(v_product_vec.n_elem);
+            }
+            
             // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
             for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++)
             {
