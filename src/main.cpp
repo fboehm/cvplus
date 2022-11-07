@@ -10,7 +10,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
-
+#include <omp.h>
 
 #include "main.hpp"
 #include "read_inputs.hpp"
@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     PARAM cPar;
     parse_args(argc, argv, cPar);
     // read indicator files for verification set
+    omp_set_thread_num(cPar.thread_num);
     std::string verification_indicator_file = cPar.path_to_indicator_files + std::string("indicator_verification.txt");
     std::vector<std::string> verification_indic_string = read_one_column_file(verification_indicator_file);
     std::vector<int> verification_indic;
@@ -65,34 +66,24 @@ int main(int argc, char *argv[])
         // write args to analyze_one_fold_one_chr with cPar contents
         // set up bed file stream
         std::string bed_file = cPar.plink_file_prefix + std::to_string(chr) + std::string(".bed");
-        std::cout << "bed_file is: " << bed_file << std::endl;
         std::ifstream bed_file_stream(bed_file.c_str(), std::ios::binary);
-        std::cout << "created bed_file_stream" << std::endl;
         std::string bim_file_name = cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim");
-        std::cout << "bim_file is: " << bim_file_name << std::endl;
         std::vector<std::string> bim = read_bim_file(bim_file_name); // 1 vector, rs_id
         // get indices from indicator vectors
         for (uint fold = 0; fold < cPar.n_fold; fold++)
         {
             //use fold + 1, since naming of my folds starts with 1, rather than zero
-            std::cout << "starting fold " << fold + 1 << " for chr " << chr << std::endl;
             std::string training_indicator_file = cPar.path_to_indicator_files + std::string("indicator_training_fold") + std::to_string(fold + 1) + std::string(".txt");
             std::string test_indicator_file = cPar.path_to_indicator_files + std::string("indicator_test_fold") + std::to_string(fold + 1) + std::string(".txt");
             std::vector<std::string> training_indic_string = read_one_column_file(training_indicator_file);
-            std::cout << "Read training indicator file" << std::endl;
             std::vector<std::string> test_indic_string = read_one_column_file(test_indicator_file);
-            std::cout << "Read test indicator file" << std::endl;
             // convert to std::vector <int>
             std::vector<int> training_indic;
             castContainer(training_indic_string, training_indic);
-            std::cout << "training_indic has length: " << training_indic.size() << std::endl;
             std::vector<int> test_indic;
             castContainer(test_indic_string, test_indic);
             std::vector<int> training_indices = get_indices(training_indic);
             std::vector<int> test_indices = get_indices(test_indic);
-            std::cout << "training_indices has length: " << training_indices.size() << std::endl;
-            
-            std::cout << "test_indices has length: " << test_indices.size() << std::endl;
             arma::uvec training_indices_arma = arma::conv_to<arma::uvec>::from(training_indices);
             arma::uvec test_indices_arma = arma::conv_to<arma::uvec>::from(test_indices);
             test_indices_all_folds[fold] = test_indices_arma;
@@ -109,22 +100,16 @@ int main(int argc, char *argv[])
                 }
             }
             std::vector <int> short_test_indices = get_indices(short_test_indic);
-            std::cout << "short_test_indices has length: " << short_test_indices.size() << std::endl;
             arma::uvec short_test_indices_arma = arma::conv_to<arma::uvec>::from(short_test_indices);
             short_test_indices_all_folds[fold] = short_test_indices_arma;
             // subset effects vector to have only snps in both DBSLMM output file & bim file
             // we'll also use the resulting indicator vector when reading the bed file
             std::string dbslmm_output_fn = cPar.dbslmm_output_file_prefix + std::to_string(fold + 1) + std::string("_chr") + std::to_string(chr) + std::string("_best.dbslmm.txt");
             std::vector<std::vector<std::string>> DBSLMM = read_DSBLMM_output(dbslmm_output_fn); // 3 vectors, rs_id, allele, effect
-            std::cout << "DBSLMM has length: " << DBSLMM.size() << std::endl;
-            std::cout << "DSBLMM[0] has length: " << DBSLMM[0].size() << std::endl;
-            std::cout << "1st entry of DBSLMM[0] is: " << DBSLMM[0][0] << std::endl;
-            std::cout << "1st entry of bim is: " << bim[0] << std::endl;  
             // https://stackoverflow.com/questions/49441588/c-how-to-check-if-contents-of-vector-exist-in-another-vector
             // make the indicator vector for bim snps being in the DBSLMM output file
 
             std::vector<bool> bim_snp_in_DBSLMM_output = is_in(DBSLMM[0], bim);
-            std::cout << "bim_snp_in_DBSLMM_output has length: " << bim_snp_in_DBSLMM_output.size() << std::endl;
             // read one SNP's genotypes for all subjects
             // determine pos value for readSNP function
             // we only read SNPs that are in the DBSLMM output file
@@ -143,6 +128,9 @@ int main(int argc, char *argv[])
             }
             
             // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
+            //#pragma omp parallel for reduction(+:x,y)
+            //https://stackoverflow.com/questions/11773115/parallel-for-loop-in-openmp
+            #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
             for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++)
             {
                 std::cout << "bim_snp has value: " << bim_snp << std::endl;
@@ -291,6 +279,14 @@ void parse_args(int argc, char *argv[], PARAM &cPar)
             str.assign(argv[i]);
             cPar.outpath = str;
         }
+                else if (strcmp(argv[i], "--thread_num") == 0)
+        {
+            ++i;
+            str.clear();
+            str.assign(argv[i]);
+            cPar.thread_num = std::stoi(str.c_str());
+        }
+
     }
     return;
 }
