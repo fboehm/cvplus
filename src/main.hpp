@@ -18,6 +18,7 @@ public:
 	std::string path_to_indicator_files;
 	std::string path_to_true_pheno_file; 
 	std::string outpath;
+	int thread_num;
 };
 
 
