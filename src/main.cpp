@@ -18,6 +18,13 @@
 #include "standardize.hpp"
 #include "dtpr.hpp"
 
+#pragma omp declare reduction(+ : arma::vec : \
+                              omp_out += omp_in) \
+                    initializer( omp_priv = arma::zeros<arma::vec>(omp_orig.n_rows))
+
+
+
+
 int main(int argc, char *argv[])
 {
     std::cout << "starting main function " << std::endl;

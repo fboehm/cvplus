@@ -13,7 +13,7 @@ HPP_FILES = *.hpp
 
 
 # Set complier flags 
-CXXFLAG = -std=c++11 -Wall -ggdb -O0 -fopenmp=libomp
+CXXFLAG = -std=c++11 -Wall -ggdb -O0 -larmadillo
 all: $(OUTPUTD)
 $(OUTPUTD): $(CPP_FILES) $(HPP_FILES)
-	$(CXX) $(CPP_FILES) $(CXXFLAG) -L $(ARMALIB) -v -o $(OUTPUTD) 
+	$(CXX) $(CPP_FILES) $(CXXFLAG) -v -o $(OUTPUTD) 
