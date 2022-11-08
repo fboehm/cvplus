@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
     PARAM cPar;
     parse_args(argc, argv, cPar);
     // read indicator files for verification set
-    omp_set_thread_num(cPar.thread_num);
     std::string verification_indicator_file = cPar.path_to_indicator_files + std::string("indicator_verification.txt");
     std::vector<std::string> verification_indic_string = read_one_column_file(verification_indicator_file);
     std::vector<int> verification_indic;
@@ -73,7 +72,6 @@ int main(int argc, char *argv[])
         uint max_block_size = 10000;
         for (uint fold = 0; fold < cPar.n_fold; fold++)
         {
-            //use fold + 1, since naming of my folds starts with 1, rather than zero
             std::string training_indicator_file = cPar.path_to_indicator_files + std::string("indicator_training_fold") + std::to_string(fold + 1) + std::string(".txt");
             std::string test_indicator_file = cPar.path_to_indicator_files + std::string("indicator_test_fold") + std::to_string(fold + 1) + std::string(".txt");
             std::vector<std::string> training_indic_string = read_one_column_file(training_indicator_file);
@@ -124,8 +122,8 @@ int main(int argc, char *argv[])
             // determine length of product_vec and v_product_vec
             arma::vec product_vec(sum_vec(test_indic));
             arma::vec v_product_vec(sum_vec(verification_indic));
-            arma::vec product_vec_all_blocks() ;
-            arma::vec v_product_vec_all_blocks;
+            arma::vec product_vec_all_blocks(sum_vec(test_indic));
+            arma::vec v_product_vec_all_blocks(sum_vec(verification_indic));
             if (chr == 1){
                 pgs[fold].zeros(product_vec.n_elem);
                 v_pgs[fold].zeros(v_product_vec.n_elem);
@@ -159,18 +157,28 @@ int main(int argc, char *argv[])
                     {
                         readSNP(bim_snp, subject_indicator, bed_file_stream, geno_mat, snp_block_size);
                         // partition geno into training, test, and verif sets
-                        arma::vec training_geno = subset(geno, training_indices_arma);
-                        arma::vec test_geno = subset(geno, test_indices_arma);
-                        arma::vec verif_geno = subset(geno, verification_indices_arma);
+                        arma::vec training_geno_mat = subset(geno_mat, training_indices_arma);
+                        arma::vec test_geno_mat = subset(geno_mat, test_indices_arma);
+                        arma::vec verif_geno_mat = subset(geno_mat, verification_indices_arma);
+                        arma::vec effects(geno_mat.n_cols);
                         // standardize verif_geno & test_geno
-                        arma::vec test_geno_std = standardize(training_geno, test_geno);
-                        arma::vec verif_geno_std = standardize(training_geno, verif_geno);
+                        for (uint col = 0; col < geno_mat.n_cols; col++){
+                            //define training_geno, test_geno & verif_geno
+                            arma::vec training_geno = training_geno_mat.col(col);
+                            arma::vec test_geno = test_geno_mat.col(col);
+                            arma::vec verif_geno = verif_geno_mat.col(col);
+                            arma::vec test_geno_std = standardize(training_geno, test_geno);
+                            arma::vec verif_geno_std = standardize(training_geno, verif_geno);
+                            double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
+                            // put back into matrix
+                            test_geno_mat.col(col) = test_geno_std;
+                            verif_geno_mat.col(col) = verif_geno_std;
+                            effects(col) = dd; 
+                        }
                         // multiply standardized genotypes by DBSLMM effect for that snp
-                        double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
                         // multiply the standardized test set genotypes by effect for that snp
-                        std::cout << "dd has value: " << dd << std::endl;
-                        product_vec += test_geno_std * (double)dd;
-                        v_product_vec += verif_geno_std * (double)dd;
+                        product_vec += test_geno_mat * effects;
+                        v_product_vec += verif_geno_mat * effects;
                         DBSLMM_snp++; // advance counter for snps in DBSLMM file
                         // note that we assume that snps in DBSLMM file is a subset of snps in bim file
                     }
