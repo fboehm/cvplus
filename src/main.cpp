@@ -69,7 +69,8 @@ int main(int argc, char *argv[])
         std::ifstream bed_file_stream(bed_file.c_str(), std::ios::binary);
         std::string bim_file_name = cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim");
         std::vector<std::string> bim = read_bim_file(bim_file_name); // 1 vector, rs_id
-        // get indices from indicator vectors
+        // determine number of blocks per chromosome
+        uint max_block_size = 10000;
         for (uint fold = 0; fold < cPar.n_fold; fold++)
         {
             //use fold + 1, since naming of my folds starts with 1, rather than zero
@@ -107,6 +108,8 @@ int main(int argc, char *argv[])
             std::string dbslmm_output_fn = cPar.dbslmm_output_file_prefix + std::to_string(fold + 1) + std::string("_chr") + std::to_string(chr) + std::string("_best.dbslmm.txt");
             std::vector<std::vector<std::string>> DBSLMM = read_DSBLMM_output(dbslmm_output_fn); // 3 vectors, rs_id, allele, effect
             // https://stackoverflow.com/questions/49441588/c-how-to-check-if-contents-of-vector-exist-in-another-vector
+            uint n_blocks = ceil(DBSLMM[0].size() /(double) max_block_size);
+            uint n_snp = DBSLMM[0].size();
             // make the indicator vector for bim snps being in the DBSLMM output file
 
             std::vector<bool> bim_snp_in_DBSLMM_output = is_in(DBSLMM[0], bim);
@@ -119,9 +122,10 @@ int main(int argc, char *argv[])
             std::vector<int> subject_indicator_pre = add_two_integer_vectors(training_indic, test_indic);
             std::vector<int> subject_indicator = add_two_integer_vectors(subject_indicator_pre, verification_indic);
             // determine length of product_vec and v_product_vec
-            arma::vec geno = arma::zeros<vec>(sum_vec(subject_indicator));
             arma::vec product_vec(sum_vec(test_indic));
             arma::vec v_product_vec(sum_vec(verification_indic));
+            arma::vec product_vec_all_blocks() ;
+            arma::vec v_product_vec_all_blocks;
             if (chr == 1){
                 pgs[fold].zeros(product_vec.n_elem);
                 v_pgs[fold].zeros(v_product_vec.n_elem);
@@ -130,30 +134,50 @@ int main(int argc, char *argv[])
             // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
             //#pragma omp parallel for reduction(+:x,y)
             //https://stackoverflow.com/questions/11773115/parallel-for-loop-in-openmp
-            #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
-            for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++)
-            {
-                std::cout << "bim_snp has value: " << bim_snp << std::endl;
-                // check if SNP from bim is in DBSLMM file
-                if (bim_snp_in_DBSLMM_output[bim_snp])
-                {
-                    readSNP(bim_snp, subject_indicator, bed_file_stream, geno);
-                    // partition geno into training, test, and verif sets
-                    arma::vec training_geno = subset(geno, training_indices_arma);
-                    arma::vec test_geno = subset(geno, test_indices_arma);
-                    arma::vec verif_geno = subset(geno, verification_indices_arma);
-                    // standardize verif_geno & test_geno
-                    arma::vec test_geno_std = standardize(training_geno, test_geno);
-                    arma::vec verif_geno_std = standardize(training_geno, verif_geno);
-                    // multiply standardized genotypes by DBSLMM effect for that snp
-                    double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
-                    // multiply the standardized test set genotypes by effect for that snp
-                    std::cout << "dd has value: " << dd << std::endl;
-                    product_vec += test_geno_std * (double)dd;
-                    v_product_vec += verif_geno_std * (double)dd;
-                    DBSLMM_snp++; // advance counter for snps in DBSLMM file
-                    // note that we assume that snps in DBSLMM file is a subset of snps in bim file
+             
+                
+
+
+            for (uint block_num = 0; block_num < n_blocks; block_num++){
+                // set snp_block_size
+                uint snp_block_size;
+                if (block_num + 1 != n_blocks){
+                    snp_block_size = max_block_size;
+                } else {
+                    snp_block_size = n_snp % max_block_size;
                 }
+                // initialize geno_mat
+                
+                arma::mat geno_mat = arma::zeros<mat>(sum_vec(subject_indicator), snp_block_size);
+                
+                #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
+                for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++)
+                {
+                    std::cout << "bim_snp has value: " << bim_snp << std::endl;
+                    // check if SNP from bim is in DBSLMM file
+                    if (bim_snp_in_DBSLMM_output[bim_snp])
+                    {
+                        readSNP(bim_snp, subject_indicator, bed_file_stream, geno_mat, snp_block_size);
+                        // partition geno into training, test, and verif sets
+                        arma::vec training_geno = subset(geno, training_indices_arma);
+                        arma::vec test_geno = subset(geno, test_indices_arma);
+                        arma::vec verif_geno = subset(geno, verification_indices_arma);
+                        // standardize verif_geno & test_geno
+                        arma::vec test_geno_std = standardize(training_geno, test_geno);
+                        arma::vec verif_geno_std = standardize(training_geno, verif_geno);
+                        // multiply standardized genotypes by DBSLMM effect for that snp
+                        double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
+                        // multiply the standardized test set genotypes by effect for that snp
+                        std::cout << "dd has value: " << dd << std::endl;
+                        product_vec += test_geno_std * (double)dd;
+                        v_product_vec += verif_geno_std * (double)dd;
+                        DBSLMM_snp++; // advance counter for snps in DBSLMM file
+                        // note that we assume that snps in DBSLMM file is a subset of snps in bim file
+                    }
+                }
+                product_vec_all_blocks += product_vec;
+                v_product_vec_all_blocks += v_product_vec;
+                 
             }
             // store product_vec
             pgs[fold] += product_vec;
