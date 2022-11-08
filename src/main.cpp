@@ -28,11 +28,9 @@ int main(int argc, char *argv[])
     std::string verification_indicator_file = cPar.path_to_indicator_files + std::string("indicator_verification.txt");
     std::vector<std::string> verification_indic_string = read_one_column_file(verification_indicator_file);
     std::vector<int> verification_indic;
-    std::cout << "About to start first call to castContainer " << std::endl;
     castContainer(verification_indic_string, verification_indic);
     std::vector<int> verification_indices = get_indices(verification_indic);
     arma::uvec verification_indices_arma = arma::conv_to<arma::uvec>::from(verification_indices);
-    std::cout << "Read in verification indicator file and created indices from it" << std::endl;
     // define residuals_vv to hold 5 vectors of residuals, one per fold
     std::vector<arma::vec> residuals_vv(cPar.n_fold);
     std::vector<arma::uvec> test_indices_all_folds(cPar.n_fold); // holds 5 test index arma vectors. We need these vectors later when we assemble residuals vector for entire "training + test" set
@@ -54,8 +52,6 @@ int main(int argc, char *argv[])
     //make true_pheno_double as a std::vector <double> without missing values
     // now convert to arma::vec
     arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
-    std::cout << "finished processing true pheno" << std::endl;
-    std::cout << "true_pheno has length " << true_pheno.n_elem << std::endl;
 
     std::vector<arma::vec> pgs(cPar.n_fold);
     std::vector<arma::vec> v_pgs(cPar.n_fold);
@@ -151,7 +147,6 @@ int main(int argc, char *argv[])
                 #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
                 for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++)
                 {
-                    std::cout << "bim_snp has value: " << bim_snp << std::endl;
                     // check if SNP from bim is in DBSLMM file
                     if (bim_snp_in_DBSLMM_output[bim_snp])
                     {
