@@ -62,6 +62,8 @@ int main(int argc, char *argv[])
 
     std::vector<arma::vec> pgs(cPar.n_fold);
     std::vector<arma::vec> v_pgs(cPar.n_fold);
+    // specify max block size in number of SNPs
+    uint max_block_size = 10000;
     for (int chr = 1; chr <= 22; chr++)
     {
         std::cout << "Starting chr " << chr << std::endl;
@@ -71,8 +73,6 @@ int main(int argc, char *argv[])
         std::ifstream bed_file_stream(bed_file.c_str(), std::ios::binary);
         std::string bim_file_name = cPar.plink_file_prefix + std::to_string(chr) + std::string(".bim");
         std::vector<std::string> bim = read_bim_file(bim_file_name); // 1 vector, rs_id
-        // determine number of blocks per chromosome
-        uint max_block_size = 10000;
         for (uint fold = 0; fold < cPar.n_fold; fold++)
         {
             std::string training_indicator_file = cPar.path_to_indicator_files + std::string("indicator_training_fold") + std::to_string(fold + 1) + std::string(".txt");
@@ -150,25 +150,26 @@ int main(int argc, char *argv[])
                 // initialize geno_mat
                 
                 arma::mat geno_mat = arma::zeros<mat>(sum_vec(subject_indicator), snp_block_size);
-                
+                arma::mat test_geno_mat = arma::zeros<mat>(sum_vec(test_indic), snp_block_size);
+                arma::mat verif_geno_mat = arma::zeros<mat>(sum_vec(verification_indic), snp_block_size);
+                arma::vec geno = arma::zeros<vec>(sum_vec(subject_indicator));
+                uint bim_start_point = block_num * max_block_size;
+                uint bim_end_point = bim_start_point + snp_block_size;
                 #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
-                for (int bim_snp = 0; bim_snp < bim_snp_in_DBSLMM_output.size(); bim_snp++)
+                for (uint bim_snp = bim_start_point; bim_snp < bim_end_point; bim_snp++)
                 {
                     // check if SNP from bim is in DBSLMM file
                     if (bim_snp_in_DBSLMM_output[bim_snp])
                     {
-                        readSNP(bim_snp, subject_indicator, bed_file_stream, geno_mat, snp_block_size);
+                        readSNP(bim_snp, subject_indicator, bed_file_stream, geno);
                         // partition geno into training, test, and verif sets
-                        arma::vec training_geno_mat = subset(geno_mat, training_indices_arma);
-                        arma::vec test_geno_mat = subset(geno_mat, test_indices_arma);
-                        arma::vec verif_geno_mat = subset(geno_mat, verification_indices_arma);
-                        arma::vec effects(geno_mat.n_cols);
+                        arma::vec training_geno = subset(geno, training_indices_arma);
+                        arma::vec test_geno = subset(geno, test_indices_arma);
+                        arma::vec verif_geno = subset(geno, verification_indices_arma);
+                        arma::vec effects();
                         // standardize verif_geno & test_geno
                         for (uint col = 0; col < geno_mat.n_cols; col++){
                             //define training_geno, test_geno & verif_geno
-                            arma::vec training_geno = training_geno_mat.col(col);
-                            arma::vec test_geno = test_geno_mat.col(col);
-                            arma::vec verif_geno = verif_geno_mat.col(col);
                             arma::vec test_geno_std = standardize(training_geno, test_geno);
                             arma::vec verif_geno_std = standardize(training_geno, verif_geno);
                             double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
