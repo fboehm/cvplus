@@ -122,67 +122,62 @@ int main(int argc, char *argv[])
     // determine length of product_vec and v_product_vec
     arma::vec product_vec(sum_vec(test_indic));
     arma::vec v_product_vec(sum_vec(verification_indic));
-    arma::vec product_vec_all_blocks(sum_vec(test_indic));
-    arma::vec v_product_vec_all_blocks(sum_vec(verification_indic));
-    /*if (chr == 1){
-        pgs[fold].zeros(product_vpgs[fold] += product_vec;
-    v_pgs[fold] += v_product_vec;
-ec.n_elem);
-        v_pgs[fold].zeros(v_product_vec.n_elem);
-    }*/
     
     // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
     //https://stackoverflow.com/questions/11773115/parallel-for-loop-in-openmp
     for (uint block_num = 0; block_num < n_blocks; block_num++){
-    // set snp_block_size
-    uint snp_block_size;
-    if (block_num + 1 != n_blocks){
-        snp_block_size = max_block_size;
-    } else {
-        snp_block_size = n_snp % max_block_size;
-    }
-    // initialize geno_mat
-    
-    arma::mat geno_mat = arma::zeros<mat>(sum_vec(subject_indicator), snp_block_size);
-    arma::mat test_geno_mat = arma::zeros<mat>(sum_vec(test_indic), snp_block_size);
-    arma::mat verif_geno_mat = arma::zeros<mat>(sum_vec(verification_indic), snp_block_size);
-    arma::vec geno = arma::zeros<vec>(sum_vec(subject_indicator));
-    uint bim_start_point = block_num * max_block_size;
-    uint bim_end_point = bim_start_point + snp_block_size;
-    #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
-    for (uint bim_snp = bim_start_point; bim_snp < bim_end_point; bim_snp++)
-    {
-        // check if SNP from bim is in DBSLMM file
-        if (bim_snp_in_DBSLMM_output[bim_snp])
-        {
-            readSNP(bim_snp, subject_indicator, bed_file_stream, geno);
-            // partition geno into training, test, and verif sets
-            arma::vec training_geno = subset(geno, training_indices_arma);
-            arma::vec test_geno = subset(geno, test_indices_arma);
-            arma::vec verif_geno = subset(geno, verification_indices_arma);
-            arma::vec effects();
-            // standardize verif_geno & test_geno
-            for (uint col = 0; col < geno_mat.n_cols; col++){
-                //define training_geno, test_geno & verif_geno
-                arma::vec test_geno_std = standardize(training_geno, test_geno);
-                arma::vec verif_geno_std = standardize(training_geno, verif_geno);
-                double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
-                // put back into matrix
-                test_geno_mat.col(col) = test_geno_std;
-                verif_geno_mat.col(col) = verif_geno_std;
-                effects(col) = dd; 
-            }
-            // multiply standardized genotypes by DBSLMM effect for that snp
-            // multiply the standardized test set genotypes by effect for that snp
-            product_vec += test_geno_mat * effects;
-            v_product_vec += verif_geno_mat * effects;
-            DBSLMM_snp++; // advance counter for snps in DBSLMM file
-            // note that we assume that snps in DBSLMM file is a subset of snps in bim file
+        // set snp_block_size
+        uint snp_block_size;
+        if (block_num + 1 != n_blocks){
+            snp_block_size = max_block_size;
+        } else {
+            snp_block_size = n_snp % max_block_size;
         }
-    }
-    product_vec_all_blocks += product_vec;
-    v_product_vec_all_blocks += v_product_vec;
+        // initialize geno_mat
         
+        arma::mat geno_mat = arma::zeros<mat>(sum_vec(subject_indicator), snp_block_size);
+        arma::mat test_geno_mat = arma::zeros<mat>(sum_vec(test_indic), snp_block_size);
+        arma::mat verif_geno_mat = arma::zeros<mat>(sum_vec(verification_indic), snp_block_size);
+        arma::vec geno = arma::zeros<vec>(sum_vec(subject_indicator));
+        uint bim_start_point = block_num * max_block_size;
+        uint bim_end_point = bim_start_point + snp_block_size;
+        #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
+        
+        //need to iterate bim_snp and DBSLMM_snp in this loop; however
+        // want to put DBSLMM_snp in the for () and have bim_snp as an extra counter
+        for (uint bim_snp = bim_start_point; bim_snp < bim_end_point; bim_snp++)
+        {
+            // check if SNP from bim is in DBSLMM file
+            if (bim_snp_in_DBSLMM_output[bim_snp])
+            {
+                readSNP(bim_snp, subject_indicator, bed_file_stream, geno);
+                // partition geno into training, test, and verif sets
+                arma::vec training_geno = subset(geno, training_indices_arma);
+                arma::vec test_geno = subset(geno, test_indices_arma);
+                arma::vec verif_geno = subset(geno, verification_indices_arma);
+                arma::vec effects();
+                // standardize verif_geno & test_geno
+                for (uint col = 0; col < geno_mat.n_cols; col++){
+                    //define training_geno, test_geno & verif_geno
+                    arma::vec test_geno_std = standardize(training_geno, test_geno);
+                    arma::vec verif_geno_std = standardize(training_geno, verif_geno);
+                    double dd = std::stod(DBSLMM[2][DBSLMM_snp]);
+                    // put back into matrix
+                    test_geno_mat.col(col) = test_geno_std;
+                    verif_geno_mat.col(col) = verif_geno_std;
+                    effects(col) = dd; 
+                }
+                // multiply standardized genotypes by DBSLMM effect for that snp
+                // multiply the standardized test set genotypes by effect for that snp
+                product_vec += test_geno_mat * effects;
+                v_product_vec += verif_geno_mat * effects;
+                DBSLMM_snp++; // advance counter for snps in DBSLMM file
+                // note that we assume that snps in DBSLMM file is a subset of snps in bim file
+            }
+        }
+        product_vec_all_blocks += product_vec;
+        v_product_vec_all_blocks += v_product_vec;
+            
     }
     // store product_vec
 /*    pgs[fold] += product_vec;
