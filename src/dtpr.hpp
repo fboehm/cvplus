@@ -23,6 +23,4 @@ using namespace arma;
 void readSNP(const int pos, 
                    const vector<int> &indicator_idv, 
                    ifstream &infile, 
-                   mat &geno_mat, 
-                   const int n_snp);
-                   
+                   vec &geno);
