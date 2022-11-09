@@ -19,6 +19,8 @@ public:
 	std::string path_to_true_pheno_file; 
 	std::string outpath;
 	int thread_num;
+	int fold_num;
+	int chr_num;
 };
 
 
