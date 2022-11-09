@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
     */
         // loop over folds
 //fix this after my redefinition of true_pheno!
-    residuals_vv = abs(true_pheno.elem(short_test_indices_all_folds) - pgs);
+    residuals_vv = abs(true_pheno.elem(short_test_indices_all_folds[fold]) - pgs[fold]);
     // assemble residuals_vv into a single arma::vec for all "training + test" subjects
     // initialize resids vector with NaN values
     arma::vec resids(verification_indic.size()); // resids is a vector with one entry per subject in the fam file
