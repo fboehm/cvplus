@@ -31,9 +31,9 @@ std::vector <int> convert_string_to_indices(std::vector <std::string> in_string)
 template<typename C1, typename C2>
 void castContainer(const C1& source, C2& destination);
 
-template<typename T, typename T2>
+/*template<typename T, typename T2>
 std::vector<T>& operator<<(std::vector<T>& v, T2 t);
-
+*/
 
 /*template <typename T>
 std::vector<T> operator+(std::vector<T> lhs, const std::vector<T> & rhs);

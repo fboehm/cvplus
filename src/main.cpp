@@ -67,12 +67,6 @@ int main(int argc, char *argv[])
     /*test_indices_all_folds[fold] = test_indices_arma;
     training_indices_all_folds[fold] = training_indices_arma;
     */
-    //due to the way I now define true_pheno, in terms of two 
-    // vectors - one with (nonmissing) values and the second with 
-    // indicator of missingness - I need to make 
-    // adjusted test_indices_all_folds object
-    // subset effects vector to have only snps in both DBSLMM output file & bim file
-    // we'll also use the resulting indicator vector when reading the bed file
     std::string dbslmm_output_fn = cPar.dbslmm_output_file_prefix + std::to_string(cPar.fold_num) + std::string("_chr") + std::to_string(cPar.chr_num) + std::string("_best.dbslmm.txt");
     std::vector<std::vector<std::string>> DBSLMM = read_DSBLMM_output(dbslmm_output_fn); // 3 vectors, rs_id, allele, effect
     // https://stackoverflow.com/questions/49441588/c-how-to-check-if-contents-of-vector-exist-in-another-vector
