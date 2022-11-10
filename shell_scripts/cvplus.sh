@@ -5,7 +5,7 @@
 #SBATCH --job-name=cvpluscpp
 #SBATCH --mem-per-cpu=4G
 #SBATCH --cpus-per-task=4
-#SBATCH --array 1-110
+#SBATCH --array 1-2
 #SBATCH --output=/net/mulan/home/fredboe/research/ukb-intervals/cluster_outputs/cvpluscpp_%a.out
 #SBATCH --error=/net/mulan/home/fredboe/research/ukb-intervals/cluster_outputs/cvpluscpp_%a.err
 
