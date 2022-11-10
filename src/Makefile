@@ -11,7 +11,7 @@ CPP_FILES2 = main2.cpp helpers.cpp parse_args.cpp read_inputs.cpp
 
 
 # Set compiler flags 
-CXXFLAG = -std=c++11 -Wall -ggdb -O0 -fopenmp -larmadillo -lblas
+CXXFLAG = -std=c++11 -Wall -ggdb -O0 -fopenmp=libomp -larmadillo -lblas
 all: $(OUTPUT1) $(OUTPUT2)
 
 $(OUTPUT1): $(CPP_FILES1) $(HPP_FILES)

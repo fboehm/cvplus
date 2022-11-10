@@ -21,7 +21,7 @@ let k=0
 for fold_num in `seq 1 5`; do
     for chr_num in `seq 1 22`; do
         let k=${k}+1
-        if (${k}==${SLURM_ARRAY_TASK_ID}); then
+        if [ ${k}==${SLURM_ARRAY_TASK_ID} ]; then
             # cvplus1 command
             ${cvplus_path} --n_fold 5 --dbslmm_output_file_prefix ~/research/ukb-intervals/05_internal_c/pheno1/DBSLMM/summary_ukb_cross \
                             --plink_file_prefix /net/mulan/disk2/yasheng/predictionProject/plink_file/ukb/chr \
