@@ -40,40 +40,66 @@ int main(int argc, char *argv[]){
             true_pheno_missingness_indicator.push_back(1);
         }
     }
-    //make true_pheno_double as a std::vector <double> without missing values
-    // now convert to arma::vec
-    arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
-    std::vector <int> short_test_indic;
-    for (uint subject = 0; subject < test_indic.size(); subject++){
-        if (true_pheno_missingness_indicator[subject] == 0){
-            short_test_indic.push_back(test_indic[subject]);
+    std::vector <arma::vec> pgs_all_folds(cPar.n_fold);
+    arma::vec resids; // resids is a vector with one entry per subject in the fam file
+        
+    for (uint fold = 0; fold < cPar.n_fold; fold++){
+        // read pgs for each chr-fold pair
+        arma::vec pgs_arma;
+        for (uint chr = 1; chr <= 22; chr++){
+            // assemble file name
+            std::string pgs_file = cPar.path_to_pgs_files + std::string("pgs_chr") + std::to_string(chr) + std::string("_fold") + std::to_string(fold + 1) + std::string(".txt");
+            std::vector<std::string> pgs_string = read_one_column_file(pgs_file);
+            std::vector<double> pgs;
+            castContainer(pgs_string, pgs);
+            if (chr == 1){
+                pgs_arma = arma::zeros<vec>(pgs.size());
+            }        
+            pgs_arma += arma::conv_to<arma::vec>::from(pgs);
         }
-    }
-    std::vector <int> short_test_indices = get_indices(short_test_indic);
-    arma::uvec short_test_indices_arma = arma::conv_to<arma::uvec>::from(short_test_indices);
-    /*short_test_indices_all_folds[fold] = short_test_indices_arma;
-    */
-        // loop over folds
-//fix this after my redefinition of true_pheno!
-    residuals_vv = abs(true_pheno.elem(short_test_indices_all_folds[fold]) - pgs[fold]);
-    // assemble residuals_vv into a single arma::vec for all "training + test" subjects
-    // initialize resids vector with NaN values
-    arma::vec resids(verification_indic.size()); // resids is a vector with one entry per subject in the fam file
-    resids.fill(datum::nan);
-    for (int fold = 0; fold < cPar.n_fold; fold++)
-    {
+        pgs_all_folds.push_back(pgs_arma);
+        // read test indicators
+        std::string test_indicator_file = cPar.path_to_indicator_files + std::string("indicator_test_fold") + std::to_string(fold + 1) + std::string(".txt");
+        std::vector<std::string> test_indic_string = read_one_column_file(test_indicator_file);
+        // convert to std::vector <int>
+        std::vector<int> test_indic;
+        castContainer(test_indic_string, test_indic);
+        std::vector<int> test_indices = get_indices(test_indic);
+        arma::uvec test_indices_arma = arma::conv_to<arma::uvec>::from(test_indices);
+        //
+        if (fold == 0){
+            resids.set_size(test_indic.size());
+            resids.fill(datum::nan);
+        }
+        //make true_pheno_double as a std::vector <double> without missing values
+        // now convert to arma::vec
+        arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
+        std::vector <int> short_test_indic;
+        for (uint subject = 0; subject < test_indic.size(); subject++){
+            if (true_pheno_missingness_indicator[subject] == 0){
+                short_test_indic.push_back(test_indic[subject]);
+            }
+        }
+        std::vector <int> short_test_indices = get_indices(short_test_indic);
+        arma::uvec short_test_indices_arma = arma::conv_to<arma::uvec>::from(short_test_indices);
+        short_test_indices_all_folds[fold] = short_test_indices_arma;
+        
+    //fix this after my redefinition of true_pheno!
+        arma::vec foo = abs(true_pheno.elem(short_test_indices_all_folds[fold]) - pgs_all_folds[fold]);
+        residuals_vv.push_back(foo);
+        // assemble residuals_vv into a single arma::vec for all "training + test" subjects
+        // initialize resids vector with NaN values
         populate_vec(residuals_vv[fold], test_indices_all_folds[fold], resids);
+        // resids, from above, still has length equal to one entry per subject in teh fam file.
+        //  Some entries, right now, are still datum::nan
+        //  we need to extract the entries that are not missing into a new vector
+        //  alternatively, we might remove the entries that ARE datum::nan
+        arma::vec resids2 = resids.elem(arma::find_finite(resids));
+        // resids2 then gets added to vector of fitted values
+        //// we already have the five fitted values for each verification set subject ////
+        // need to loop over verif subjects
+        // for each subject, we construct a vector with length equal to the number of "test + training" subjects
     }
-    // resids, from above, still has length equal to one entry per subject in teh fam file.
-    //  Some entries, right now, are still datum::nan
-    //  we need to extract the entries that are not missing into a new vector
-    //  alternatively, we might remove the entries that ARE datum::nan
-    arma::vec resids2 = resids.elem(arma::find_finite(resids));
-    // resids2 then gets added to vector of fitted values
-    //// we already have the five fitted values for each verification set subject ////
-    // need to loop over verif subjects
-    // for each subject, we construct a vector with length equal to the number of "test + training" subjects
-
     arma::vec upper(verification_indices_arma.n_elem);
     arma::vec lower(verification_indices_arma.n_elem);
     for (int v_subject = 0; v_subject < verification_indices_arma.n_elem; v_subject++)

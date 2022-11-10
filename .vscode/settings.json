@@ -67,6 +67,7 @@
         "cassert": "cpp",
         "cerrno": "cpp",
         "cfloat": "cpp",
-        "climits": "cpp"
+        "climits": "cpp",
+        "armadillo": "cpp"
     }
 }

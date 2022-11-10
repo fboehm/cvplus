@@ -21,6 +21,7 @@ public:
 	int thread_num;
 	int fold_num;
 	int chr_num;
+	std::string path_to_pgs_files;
 };
 
 
