@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
                 // multiply the standardized test set genotypes by effect for that snp
                 product_vec += test_geno_mat * effects;
                 v_product_vec += verif_geno_mat * effects;
-                DBSLMM_snp++; // advance counter for snps in DBSLMM file
+                DBSLMM_snp++; // advance countcaster for snps in DBSLMM file
                 // note that we assume that snps in DBSLMM file is a subset of snps in bim file
             }
         }
@@ -142,6 +142,11 @@ int main(int argc, char *argv[])
     } // end loop over blocks
     
     bed_file_stream.close();
+    std::string out1 = cPar.path_to_pgs_files + std::string("pgs_chr") + std::to_string(cPar.chr_num) + std::string("_fold") + std::to_string(cPar.fold_num) + std::string(".txt");
+    std::string outv = cPar.path_to_pgs_files + std::string("verif_pgs_chr") + std::to_string(cPar.chr_num) + std::string("_fold") + std::to_string(cPar.fold_num) + std::string(".txt");
+    product_vec.save(out1.c_str(), arma::arma_ascii);
+    v_product_vec.save(outv.c_str(), arma::arma_ascii);
+    
     return 0;
 }
 

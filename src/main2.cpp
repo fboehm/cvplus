@@ -43,23 +43,34 @@ int main(int argc, char *argv[]){
     }
     arma::vec true_pheno = arma::conv_to<arma::vec>::from(true_pheno_double);
     std::vector <arma::vec> pgs_all_folds(cPar.n_fold);
+    std::vector <arma::vec> v_pgs_all_folds(cPar.n_fold);
     arma::vec resids; // resids is a vector with one entry per subject in the fam file
         
     for (uint fold = 0; fold < cPar.n_fold; fold++){
         // read pgs for each chr-fold pair
         arma::vec pgs_arma;
+        arma::vec v_pgs_arma;
+        
         for (uint chr = 1; chr <= 22; chr++){
             // assemble file name
             std::string pgs_file = cPar.path_to_pgs_files + std::string("pgs_chr") + std::to_string(chr) + std::string("_fold") + std::to_string(fold + 1) + std::string(".txt");
-            std::vector<std::string> pgs_string = read_one_column_file(pgs_file);
-            std::vector<double> pgs;
-            castContainer(pgs_string, pgs);
+            arma::vec bar;
+            bar.load(pgs_file.c_str());
             if (chr == 1){
-                pgs_arma = arma::zeros<vec>(pgs.size());
+                pgs_arma = arma::zeros<vec>(bar.n_elem);
             }        
-            pgs_arma += arma::conv_to<arma::vec>::from(pgs);
+            pgs_arma += bar;
+            // verif set
+            std::string v_pgs_file = cPar.path_to_pgs_files + std::string("verif_pgs_chr") + std::to_string(chr) + std::string("_fold") + std::to_string(fold + 1) + std::string(".txt");
+            arma::vec v_bar;
+            v_bar.load(v_pgs_file.c_str());
+            if (chr == 1){
+                v_pgs_arma = arma::zeros<vec>(v_bar.n_elem);
+            }        
+            v_pgs_arma += v_bar;
         }
         pgs_all_folds.push_back(pgs_arma);
+        v_pgs_all_folds.push_back(v_pgs_arma);
         // read test indicators
         std::string test_indicator_file = cPar.path_to_indicator_files + std::string("indicator_test_fold") + std::to_string(fold + 1) + std::string(".txt");
         std::vector<std::string> test_indic_string = read_one_column_file(test_indicator_file);
@@ -142,9 +153,9 @@ int main(int argc, char *argv[]){
 
     // subset true phenotype vector to verif subjects
     arma::vec true_pheno_subset = subset(true_pheno, verification_indices_arma);
-    true_pheno_subset.save(true_pheno_outfile.c_str(), arma_ascii);
-    upper.save(upper_outfile.c_str(), arma_ascii);
-    lower.save(lower_outfile.c_str(), arma_ascii);
+    true_pheno_subset.save(true_pheno_outfile.c_str(), arma::arma_ascii);
+    upper.save(upper_outfile.c_str(), arma::arma_ascii);
+    lower.save(lower_outfile.c_str(), arma::arma_ascii);
     return 0;
 }
 
