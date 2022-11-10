@@ -7,7 +7,7 @@ OUTPUT2 = cvplus2
 CXX = clang++-9
 CPP_FILES1 = main.cpp dtpr.cpp helpers.cpp parse_args.cpp read_inputs.cpp standardize.cpp
 HPP_FILES = *.hpp 
-CPP_FILES2 = main2.cpp dtpr.cpp helpers.cpp parse_args.cpp read_inputs.cpp
+CPP_FILES2 = main2.cpp helpers.cpp parse_args.cpp read_inputs.cpp
 
 
 # Set compiler flags 
