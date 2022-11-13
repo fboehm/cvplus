@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
     std::vector<int> subject_indicator_pre = add_two_integer_vectors(training_indic, test_indic);
     std::vector<int> subject_indicator = add_two_integer_vectors(subject_indicator_pre, verification_indic);
     // determine length of product_vec and v_product_vec
-    arma::vec product_vec(sum_vec(test_indic));
-    arma::vec v_product_vec(sum_vec(verification_indic));
+    arma::vec product_vec = arma::zeros<vec>(sum_vec(test_indic));
+    arma::vec v_product_vec = arma::zeros<vec>(sum_vec(verification_indic));
     
     // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
     //https://stackoverflow.com/questions/11773115/parallel-for-loop-in-openmp
