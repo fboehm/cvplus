@@ -20,7 +20,7 @@
 
 #pragma omp declare reduction(+ : arma::vec : \
                               omp_out += omp_in) \
-                    initializer( omp_priv = arma::zeros<arma::vec>(omp_orig.n_rows))
+                    initializer( omp_priv = arma::zeros<arma::vec>(omp_orig.n_rows) )
 
 
 
@@ -107,7 +107,8 @@ int main(int argc, char *argv[])
         uint bim_end_point = bim_start_point + snp_block_size;
         //need to iterate bim_snp and DBSLMM_snp in this loop; however
         // want to put DBSLMM_snp in the for () and have bim_snp as an extra counter
-        #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
+        /*#pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
+        */
         for (uint bim_snp = bim_start_point; bim_snp < bim_end_point; bim_snp++)
         {
             // check if SNP from bim is in DBSLMM file
