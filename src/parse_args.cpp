@@ -92,6 +92,13 @@ void parse_args(int argc, char *argv[], PARAM &cPar)
             str.assign(argv[i]);
             cPar.chr_num = std::stoi(str.c_str());
         }
+        else if (strcmp(argv[i], "--path_to_pgs_files") == 0)
+        {
+            ++i;
+            str.clear();
+            str.assign(argv[i]);
+            cPar.path_to_pgs_files = str;
+        }
     }
     return;
 }
