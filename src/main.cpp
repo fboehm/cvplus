@@ -10,7 +10,7 @@
 #include <boost/lexical_cast.hpp>
 #include <iterator>
 #include <regex>
-#include <omp.h>
+#include <mpi.h>
 
 #include "main.hpp"
 #include "read_inputs.hpp"
@@ -18,9 +18,6 @@
 #include "standardize.hpp"
 #include "dtpr.hpp"
 
-#pragma omp declare reduction(+ : arma::vec : \
-                              omp_out += omp_in) \
-                    initializer( omp_priv = arma::zeros<arma::vec>(omp_orig.n_rows))
 
 
 
@@ -155,7 +152,6 @@ int main(int argc, char *argv[])
                 arma::vec geno = arma::zeros<vec>(sum_vec(subject_indicator));
                 uint bim_start_point = block_num * max_block_size;
                 uint bim_end_point = bim_start_point + snp_block_size;
-                #pragma omp parallel for num_threads(cPar.thread_num) reduction(+:product_vec,v_product_vec)
                 for (uint bim_snp = bim_start_point; bim_snp < bim_end_point; bim_snp++)
                 {
                     // check if SNP from bim is in DBSLMM file
