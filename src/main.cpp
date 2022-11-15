@@ -28,7 +28,32 @@ int main(int argc, char *argv[])
     // set up cPar
     PARAM cPar;
     parse_args(argc, argv, cPar);
-    // read indicator files for verification set
+    // set up MPI
+    // https://gist.github.com/kmkurn/39ca673bb37946055b38
+    int	numtasks,              /* number of tasks in partition */
+        taskid,                /* a task identifier */
+        numworkers,            /* number of worker tasks */
+        source,                /* task id of message source */
+        dest,                  /* task id of message destination */
+        mtype,                 /* message type */
+        rows,                  /* rows of matrix A sent to each worker */
+        averow, extra, offset, /* used to determine rows sent to each worker */
+        i, j, k, rc;           /* misc */
+    double	a[NRA][NCA],           /* matrix A to be multiplied */
+        b[NCA][NCB],           /* matrix B to be multiplied */
+        c[NRA][NCB];           /* result matrix C */
+    MPI_Status status;
+
+    MPI_Init(&argc,&argv);
+    MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
+    MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
+    if (numtasks < 2 ) {
+        printf("Need at least two MPI tasks. Quitting...\n");
+        MPI_Abort(MPI_COMM_WORLD, rc);
+        exit(1);
+    }
+    numworkers = numtasks-1;
+    // read indicator files for verification set    
     std::string verification_indicator_file = cPar.path_to_indicator_files + std::string("indicator_verification.txt");
     std::vector<std::string> verification_indic_string = read_one_column_file(verification_indicator_file);
     std::vector<int> verification_indic;
@@ -132,9 +157,6 @@ int main(int argc, char *argv[])
             // https://stackoverflow.com/questions/28607912/sum-values-of-2-vectors
             //#pragma omp parallel for reduction(+:x,y)
             //https://stackoverflow.com/questions/11773115/parallel-for-loop-in-openmp
-             
-                
-
 
             for (uint block_num = 0; block_num < n_blocks; block_num++){
                 // set snp_block_size
@@ -184,11 +206,10 @@ int main(int argc, char *argv[])
                 }
                 product_vec_all_blocks += product_vec;
                 v_product_vec_all_blocks += v_product_vec;
-                 
             }
             // store product_vec
-            pgs[fold] += product_vec;
-            v_pgs[fold] += v_product_vec;
+            pgs[fold] += product_vec_all_blocks;
+            v_pgs[fold] += v_product_vec_all_blocks;
         } // end loop over folds
         bed_file_stream.close();
     }     // end loop over chr
